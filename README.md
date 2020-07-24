@@ -21,7 +21,7 @@ tmpUI 依赖 jQuery 来实现一些 dom 操作。
 
 # 入门
 tmpUI 用到以下文件：
-* app.html 单页应用入口，包含了 tmpUI app 所需的特定 dom 结构。
+* index.html 单页应用入口，包含了 tmpUI app 所需的特定 dom 结构。
 * tmpui_es5.js 实现功能所需的 js 代码，这是经过 babel 编译的 es5 版本，适配大多数现代浏览器。
 * tmpui.css 一些动画效果需要这个 css 文件来支持。
 * site.config 配置文件，描述如何构成 tmpUI app。
