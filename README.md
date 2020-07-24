@@ -27,3 +27,12 @@ tmpUI 用到以下文件：
 * site.config 配置文件，描述如何构成 tmpUI app。
 
 除此之外，一个 tmpUI app 还包含了其他的项目文件，一般我们都把他们组织存放到其他文件夹。
+
+# 快速开始
+仅需两步，即可快速启动一个 tmpUI app，需要准备 github desktop 客户端以及 vscode。
+
+* 在你的 github desktop 客户端中克隆本项目，然后选择在 vscode 中打开此库。
+* 在 vscode 中右下角点击 Go Live 来启动一个 web 服务器。（ Go live 需要你安装 vscode 的 live server 插件）。
+
+# 详细文档
+我们会继续完善这个项目，此项目中包含的所有文件将成为 tmpUI 文档的一部分，一共中文和英文两个版本。
