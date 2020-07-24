@@ -17,7 +17,7 @@ tmpUI 目前已经实现的功能：
 
 # 依赖
 
-tmpUI 依赖 juqery 来实现一些 dom 操作。
+tmpUI 依赖 jQuery 来实现一些 dom 操作。
 
 # 入门
 tmpUI 用到以下文件：
