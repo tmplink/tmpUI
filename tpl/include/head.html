@@ -1,0 +1,35 @@
+<div class="loading-box" id="loading_box" style="display: none;">
+    <div class="loading shadow-sm fa-2x pt-4">
+        <span>
+            <i class="fas fa-spinner fa-pulse"></i>
+        </span>
+    </div>
+</div>
+<nav class="navbar navbar-expand-lg navbar-expand-md navbar-light fixed-top bg-light" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="javascript:void(0)" onclick="app.open('/');">
+            <img src="/tpl/img/logo.png" width="25" height="25">
+        </a>
+
+        <ul class="navbar-nav mr-auto navbar_nloading">
+            <li class="nav-item">
+                <i class="fad fa-spinner-third fa-spin"></i>
+            </li>
+        </ul>
+
+        <div class="form-inline my-2 my-lg-0 navbar_ready">
+            <div class="btn-group ml-2">
+                <button type="button" class=" btn btn-outline-success dropdown-toggle" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    中文 / English
+                </button>
+                <div class="dropdown-menu shadow">
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="app.language_set('cn');">简体中文</a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="app.language_set('en');">English</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div style="height: 80px;"></div>
