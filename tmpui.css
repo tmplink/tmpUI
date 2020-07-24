@@ -1,0 +1,39 @@
+#tmpui_loading_bg{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 15000;
+}
+#tmpui_loading_show{
+    color: black;
+    z-index: 15001;
+    width: 200px; 
+    height: 200px;
+    position: absolute; 
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0; 
+    margin: auto;
+    text-align: center;
+}
+.tmpui_tpl{
+    display: none;
+}
+.tmpui_progress {
+    width: 180px;
+    background: #ddd;
+    margin-right:auto;
+    margin-left:auto;
+}
+.tmpui_curRate {
+    width: 0%;
+    background: #f30;
+}
+.tmpui_round_conner {
+    height: 8px;
+    border-radius: 15px;
+}
