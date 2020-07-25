@@ -3,9 +3,65 @@
     配置 tmpUI 程序。 site.config 只是一个文件名，实际上可以是任何名字，注意不要让服务器缓存此文件。
 </div>
 <hr>
+<img tmpui-root="true" src="tpl/img/struct.png" style="width: 100%;" />
+<pre>
+    <code class="json">
+{
+    "version": 1,
+    "siteroot": "/",
+    "loadingIcon": "/tpl/img/logo.png",
+    "loadingPage": true,
+    "loadingProgress": true,
+    "loadingAnimationTime": 500,
+    "language": {
+        "en": "/tpl/lang/en.json",
+        "cn": "/tpl/lang/cn.json"
+    },
+    "preload": {
+        "init": {
+            "/tpl/plugin/highlightjs/min.js": { "type": "js", "reload": false },
+            "/tpl/plugin/highlightjs/min.css": { "type": "css", "reload": false },
+            "/tpl/plugin/bootstrap4/bootstrap.bundle.min.js": { "type": "js", "reload": false },
+            "/tpl/plugin/bootstrap4/bootstrap.min.css": { "type": "css", "reload": false },
+            "/tpl/css/reset.css": { "type": "css", "reload": false }
+        }
+    },
+    "append": {
+        "framework": {
+            "/tpl/include/head.html": { "type": "html", "target": { "type": "id", "val": "tpl_header" } },
+            "/tpl/include/foot.html": { "type": "html", "target": { "type": "id", "val": "tpl_footer" } },
+            "/tpl/init.js": { "type": "js" }
+        }
+    },
+    "path": {
+        "/": {
+            "title": "tmpUI App!",
+            "preload": ["init"],
+            "append": ["framework"],
+            "body": {
+                "/tpl/index.html": { "type": "html", "target": { "type": "body" } }
+            }
+        },
+        "/getting_started.html": {
+            "title": "tmpUI App - getting started",
+            "preload": ["init"],
+            "append": ["framework"],
+            "body": {
+                "/tpl/getting_started.html": { "type": "html", "target": { "type": "body" } },
+                "/tpl/pages/introducation.html": { "type": "html", "target": { "type": "id", "val": "tpl_introducation" } },
+                "/tpl/pages/config.html": { "type": "html", "target": { "type": "id", "val": "tpl_config" } },
+                "/tpl/pages/function.html": { "type": "html", "target": { "type": "id", "val": "tpl_function" } },
+                "/tpl/pages/tips.html": { "type": "html", "target": { "type": "id", "val": "tpl_tips" } }
+            }
+        }
+    }
+}        
+    </code>
+</pre>
 <p>
     <h2>version</h2>
-    <div>version 字段定义了当前 tmpUI 的程序版本，在编写 tmpUI 时，如果您是使用 vscode 中的 live server 插件运行程序，通常不会导致浏览器缓存您的静态资源（比如图片，css，html），但是通常生产环境会缓存这些静态资源，每次发布新版本，请修改 version，设定成一个不同的值，以便让线上程序保持最新。</div>
+    <div>version 字段定义了当前 tmpUI 的程序版本，在编写 tmpUI 时，如果您是使用 vscode 中的 live server
+        插件运行程序，通常不会导致浏览器缓存您的静态资源（比如图片，css，html），但是通常生产环境会缓存这些静态资源，每次发布新版本，请修改 version，设定成一个不同的值，以便让线上程序保持最新。</div>
 </p>
 <p>
     <h2>siteroot</h2>
@@ -44,42 +100,70 @@
     <div>path 定义了程序的可用路由，您的单页应用可能会有多个组成部分，通过 path 来提前设置好这些部分，并为这些部分配置所需的文件。</div>
     <div>path 中包含多个子项目，以您看到的配置文件为例</div>
     <pre>
-        "path": {
-            "/": {
-                "title": "tmpUI App!",
-                "preload": ["init"],
-                "append": ["framework"],
-                "body": {
-                    "/tpl/index.html": { "type": "html", "target": { "type": "body" } }
-                }
-            },
-            "/getting_started.html": {
-                "title": "tmpUI App - getting started",
-                "preload": ["init"],
-                "append": ["framework"],
-                "body": {
-                    "/tpl/getting_started.html": { "type": "html", "target": { "type": "body" } },
-                    "/tpl/pages/introducation.html": { "type": "html", "target": { "type": "id", "val": "tpl_introducation" } },
-                    "/tpl/pages/config.html": { "type": "html", "target": { "type": "id", "val": "tpl_config" } },
-                    "/tpl/pages/function.html": { "type": "html", "target": { "type": "id", "val": "tpl_function" } },
-                    "/tpl/pages/tips.html": { "type": "html", "target": { "type": "id", "val": "tpl_tips" } }
-                }
-            }
+        <code class="json">
+"path": {
+    "/": {
+        "title": "tmpUI App!",
+        "preload": ["init"],
+        "append": ["framework"],
+        "body": {
+            "/tpl/index.html": { "type": "html", "target": { "type": "body" } }
         }
+    },
+    "/getting_started.html": {
+        "title": "tmpUI App - getting started",
+        "preload": ["init"],
+        "append": ["framework"],
+        "body": {
+            "/tpl/getting_started.html": { "type": "html", "target": { "type": "body" } },
+            "/tpl/pages/introducation.html": { "type": "html", "target": { "type": "id", "val": "tpl_introducation" } },
+            "/tpl/pages/config.html": { "type": "html", "target": { "type": "id", "val": "tpl_config" } },
+            "/tpl/pages/function.html": { "type": "html", "target": { "type": "id", "val": "tpl_function" } },
+            "/tpl/pages/tips.html": { "type": "html", "target": { "type": "id", "val": "tpl_tips" } }
+        }
+    }
+}
+        </code>
     </pre>
     <div>
         <div>在这部分，"/" 定义了默认路由，也就是首页。</div>
         <div> title 定义了该页面的 title。</div>
-        <div> preload 设定了此页面会用到需要预加载的文件组，值为一个数组，需要加载多个文件组时，可以这样设定 <pre>["init","init2"]</pre></div>
+        <div>
+            preload 设定了此页面会用到需要预加载的文件组，值为一个数组，需要加载多个文件组时，可以这样设定
+        </div>
+        <pre><code class="javascript">["init","init2"]</code></pre>
         <div> append 设定了此页面需要后加载的文件组。</div>
-        <div> body 设定了该页面的主要内容来源于哪些资源文件，按顺序加载这些文件。</div>
         <p>
-            <pre>"/tpl/getting_started.html": { "type": "html", "target": { "type": "body" } },</pre>
+            <div>body 设定了该页面的主要内容来源于哪些资源文件，按顺序加载这些文件。</div>
+            <pre>
+                <code class="json">"/tpl/getting_started.html": { "type": "html", "target": { "type": "body" } },</code>
+            </pre>
             <div>资源文件路径为 /tpl/getting_started.html，类型是 html，目标为 body。body 是一个特殊目标，只能使用一次，通常是为了用来设定整个页面的框架。</div>
         </p>
         <p>
-            <pre>"/tpl/pages/introducation.html": { "type": "html", "target": { "type": "id", "val": "tpl_introducation" } },</pre>
-            <div>资源文件路径为 /tpl/getting_started.html，类型是 html，目标类型为 id ，向 id 为 tpl_introducation 的 dom 写入资源内容。</div>
+            <pre>
+                <code class="json">"/tpl/pages/introducation.html": { "type": "html", "target": { "type": "id", "val": "tpl_introducation" } },</code>
+            </pre>
+            <div>资源文件路径为 /tpl/getting_started.html，类型是 html，目标类型为 id ，向 id 为 tpl_introducation 的 DOM 写入资源内容。</div>
         </p>
     </div>
 </p>
+
+<h3>资源文件 - type</h3>
+<ul>
+    <li>html : 此类型文件会作为源代码写入到页面中</li>
+    <li>css : 样式表会作为外部样式表链接到页面中</li>
+    <li>js : Javacript脚本比较特殊，会先下载回来，然后内嵌到页面中</li>
+</ul>
+<div>
+    当引入一份 html 资源时，需要设定 target 参数。target 参数中的 type 有如下值：
+</div>
+<ul>
+    <li>id : 向 DOM 对象写入数据，通过 val 来指定目标。</li>
+    <li>body : 向 id 为 tmpui_body 的 DOM 对象写入数据，此类型一般用在页面初始化时。</li>
+</ul>
+
+<p>引入 js 和 css 资源时，可以额外设置 reload 属性，默认为 true，即在每次页面载入时都引入。</p>
+<p>在本文档中，我们将很多资源文件的 reload 属性都设置成了 false，这样它们仅需在 tmpUI 初始化时加载一次，以获得更好性能。</p>
+<p>需要注意的是，在传统网页的编写思路中，由于每次抵达新页面时，所有资源和程序都会初始化一次，但是 tmpUI 的 reload 属性可能会让你忽略这个情况。我们额外新增了 init.js 来处理这个问题，init.js
+    会在每个页面加载时都执行，可以做一些初始化的操作。</p>
