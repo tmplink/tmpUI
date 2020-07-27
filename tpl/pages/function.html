@@ -1,0 +1,50 @@
+<div class="display-3">功能</div>
+<div class="lead">
+    tmpUI 功能不多，但是都是你想要的。
+</div>
+<hr>
+<h1>导览</h1>
+<ul>
+    <li>全局对象</li>
+    <li>页面加载和离开</li>
+    <li>链接处理</li>
+    <li>页面模块化</li>
+    <li>多语言支持</li>
+</ul>
+<hr>
+<h2>全局对象</h2>
+<p> tmpUI 在加载页面时初始化了一个全局对象： app，可以通过 app 对象调用功能，比如 app.open 。你可以修改这个全局对象的名字，只需要在入口页(比如 index.html)更改即可。</p>
+<hr>
+<h2>页面加载和离开</h2>
+<p>tmpUI App 会在页面加载完成时执行一些操作，也可以在用户离开页面时执行一些操作。</p>
+<pre>
+    <code class="javascript">
+app.ready(
+    ()=>{
+        //do sometimg
+    }
+);
+    </code>
+</pre>
+<p>
+    app.ready 是一个任务队列，因此每次调用都会将新的代码加入到这个队列中，并在页面完成加载时，触发所有代码。
+</p>
+<p>
+    app.onExit 则是在用户离开页面时触发的任务队列，用法与 app.ready 相同。需要注意的是，app.onExit 仅能在 tmpUI App 内部页面跳转时触发。
+</p>
+<hr>
+<h2>链接处理</h2>
+<h3>页面内跳转</h3>
+<p>通过给 a 标签设置 tmpui-app="true" 可以将一个链接转化为 tmpUI 的内部页面链接，比如：</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<a tmpui-app="true" href="/getting_started.html"></a>
+    </code>
+</pre>
+<p>在上面这个代码中，链接的目标地址 “/getting_started.html” 是在 site.config 中设定好的路由地址。页面在加载完成时，会自动调用 app.linkRebind 来修改页内链接地址。这个函数可以被多次手动调用，因为某些页面可能是在后期加载的，需要利用此函数来修改页内链接地址。</p>
+<p>另外一种情况是，通过其他事件进入到另外的页内链接地址，比如在 botton 中设置 onclick。这个时候就可以用到 app.open</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<button tmpui-app="true" onclick="app.open('/getting_started.html')"></button>
+    </code>
+</pre>

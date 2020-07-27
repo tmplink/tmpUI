@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 1
+ * version: 2
  * 
  */
 
@@ -22,10 +22,10 @@ class tmpUI {
     loadingIcon = false
     loadingText = 'Loading...'
     readyCallback = null
-    progress_enable =  true
+    progress_enable = true
     progress_status = false
-    animation_time =  500
-    animation_stime =  0
+    animation_time = 500
+    animation_stime = 0
     onExitfunction = []
 
     constructor(url) {
@@ -35,8 +35,8 @@ class tmpUI {
         window.tmpui_helper = {
             loadQueue: 0,
             loadTotal: 0,
-            readyQueue : 0,
-            readyTotal : 0,
+            readyQueue: 0,
+            readyTotal: 0,
         };
         this.loadConfig(url, config => {
             //初始化history
@@ -56,11 +56,11 @@ class tmpUI {
         });
     }
 
-    onExit(cb){
+    onExit(cb) {
         this.onExitfunction.push(cb);
     }
-    doExit(){
-        if(this.onExitfunction.length !== 0){
+    doExit() {
+        if (this.onExitfunction.length !== 0) {
             for (let x in this.onExitfunction) {
                 this.onExitfunction[x]();
             }
@@ -81,14 +81,14 @@ class tmpUI {
         }
     }
 
-    readyEvent(){
-        if(window.tmpui_helper.readyQueue == window.tmpui_helper.readyTotal){
+    readyEvent() {
+        if (window.tmpui_helper.readyQueue == window.tmpui_helper.readyTotal) {
             this.readyExec();
             this.log("Ready");
-        }else{
-            setTimeout(()=>{
+        } else {
+            setTimeout(() => {
                 this.readyEvent();
-            },1000);
+            }, 1000);
         }
     }
 
@@ -173,7 +173,13 @@ class tmpUI {
         let atag = document.getElementsByTagName("a");
         if (atag.length > 0) {
             for (let i in atag) {
+
                 if (typeof (atag[i]) === 'object') {
+                    //不处理上级节点是pre或者code的情况
+                    if (atag[i].parentNode.nodeName === 'PRE' || atag[i].parentNode.nodeName === 'CODE') {
+
+                        continue;
+                    }
                     if (atag[i].getAttribute("tmpui-app") == 'true' && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
                         //获取绝对链接地址
                         let url = '';
@@ -201,6 +207,22 @@ class tmpUI {
                             //ajax('GET', url, 'page=' + url, this.loader, true);
                             this.route();
                         });
+                    }
+                }
+            }
+        }
+        let ctag = document.getElementsByTagName("code");
+        if (ctag.length > 0) {
+            for (let i in ctag) {
+                if (typeof (ctag[i]) === 'object') {
+                    let ishtml = ctag[i].getAttribute("tmpui-html-code");
+                    console.log(ishtml);
+                    if (ishtml == 'true') {
+                        let text = ctag[i].innerHTML;
+                        ctag[i].innerHTML = text.toString().replace(/[<>&"]/g, (c) => {
+                            return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c];
+                        });
+                        ctag[i].setAttribute("tmpui-html-code","loaded");
                     }
                 }
             }
@@ -380,16 +402,16 @@ class tmpUI {
 
     loaderFinish() {
         //checking progress_enable
-        if(this.progress_enable && this.progress_status===false){
+        if (this.progress_enable && this.progress_status === false) {
             //show progress bar
-            this.progress_status =  true;
+            this.progress_status = true;
             this.animation_slice();
             $('#tmpui_loading_show').append('<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
         }
         console.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
         let percent = Math.ceil(window.tmpui_helper.loadQueue / window.tmpui_helper.loadTotal * 100);
-        $('.tmpui_curRate').animate({'width': percent + '%'}, this.animation_stime,()=>{
-            if(percent===100){
+        $('.tmpui_curRate').animate({ 'width': percent + '%' }, this.animation_stime, () => {
+            if (percent === 100) {
                 $('#tmpui_loading_progress').fadeOut();
                 $('body').css('overflow', '');
                 $('#tmpui').fadeOut();
@@ -402,7 +424,7 @@ class tmpUI {
                 this.loadCallback();
             }
             this.loadCallback = null;
-            this.progress_status =  true;
+            this.progress_status = true;
         }
     }
 
@@ -532,7 +554,7 @@ class tmpUI {
             this.log('Loading page on');
         } else {
             this.log('Loading page off');
-            if(this.progress_enable){
+            if (this.progress_enable) {
                 return true;
             }
             $('body').css('overflow', '');

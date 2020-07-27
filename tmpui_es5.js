@@ -4,9 +4,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /**
  * tmpUI.js
- * 
- * 基于HTML5的一些特性。
- * 模块化前端项目。
+ * version: 2
  * 
  */
 class tmpUI {
@@ -215,6 +213,11 @@ class tmpUI {
     if (atag.length > 0) {
       for (let i in atag) {
         if (typeof atag[i] === 'object') {
+          //不处理上级节点是pre或者code的情况
+          if (atag[i].parentNode.nodeName === 'PRE' || atag[i].parentNode.nodeName === 'CODE') {
+            continue;
+          }
+
           if (atag[i].getAttribute("tmpui-app") == 'true' && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
             //获取绝对链接地址
             let url = '';
