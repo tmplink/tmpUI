@@ -1,3 +1,4 @@
+body::-webkit-scrollbar { width: 0 !important }
 #tmpui_loading_bg{
     position: fixed;
     top: 0;
