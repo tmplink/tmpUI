@@ -1,0 +1,149 @@
+<div class="display-3">功能</div>
+<div class="lead">
+    tmpUI 功能不多，但是都是你想要的。
+</div>
+<hr>
+<h1>导览</h1>
+<ul>
+    <li><a href="#goto_object">全局对象</a></li>
+    <li><a href="#goto_load">页面加载和离开</a></li>
+    <li><a href="#goto_link">链接处理</a></li>
+    <li><a href="#goto_mod">页面模块化</a></li>
+    <li><a href="#goto_i18n">多语言支持</a></li>
+</ul>
+
+<hr>
+<h2 id="goto_object">全局对象</h2>
+<p> tmpUI 在加载页面时初始化了一个全局对象： app，可以通过 app 对象调用功能，比如 app.open 。你可以修改这个全局对象的名字，只需要在入口页(比如 index.html)更改即可。</p>
+<hr>
+<h2 id="goto_load">页面加载和离开</h2>
+<p>tmpUI App 会在页面加载完成时执行一些操作，也可以在用户离开页面时执行一些操作。</p>
+<pre>
+    <code class="javascript">
+app.ready(
+    ()=>{
+        //do sometimg
+    }
+);
+    </code>
+</pre>
+<p>
+    app.ready 是一个任务队列，因此每次调用都会将新的代码加入到这个队列中，并在页面完成加载时，触发所有代码。
+</p>
+<p>
+    app.onExit 则是在用户离开页面时触发的任务队列，用法与 app.ready 相同。需要注意的是，app.onExit 仅能在 tmpUI App 内部页面跳转时触发。
+</p>
+
+<hr>
+<h2 id="goto_link">链接处理</h2>
+
+<h3>页面内跳转</h3>
+<p>通过给 a 标签设置 tmpui-app="true" 可以将一个链接转化为 tmpUI 的内部页面链接，比如：</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<a tmpui-app="true" href="/getting_started.html"></a>
+    </code>
+</pre>
+<p>在上面这个代码中，链接的目标地址 “/getting_started.html” 是在 site.config 中设定好的路由地址。页面在加载完成时，会自动调用 app.linkRebind 来修改页内链接地址。这个函数可以被多次手动调用，因为某些页面可能是在后期加载的，需要利用此函数来修改页内链接地址。</p>
+<p>另外一种情况是，通过其他事件进入到另外的页内链接地址，比如在 botton 中设置 onclick。这个时候就可以用到 app.open</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<button tmpui-app="true" onclick="app.open('/getting_started.html')"></button>
+    </code>
+</pre>
+
+<h3>静态资源路径</h3>
+<p>如果您在 site.config 中已经设定了 siteroot 设置项，您可以使用一个特定的标签(tmpui-root=true)来处理静态资源的URL，确保正确。</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<img tmpui-root="true" src="img/logo.png" />
+    </code>
+</pre>
+
+<hr>
+<h2 id="goto_mod">页面模块化</h2>
+<p>如果您有使用过PHP，那么您一定对 include 和 reqired 有所了解。tmpUI 实现了类似于这种功能。比如，您可以按照如下的目录结构，组织您的文件：</p>
+<ul>
+    <li>/tpl/head.html</li>
+    <li>/tpl/foot.html</li>
+    <li>/tpl/index.html</li>
+    <li>/tpl/page.html</li>
+    <li>/tpl/about.html</li>
+</ul>
+
+<p>其中，head.html 和 foot.html 都是可以复用的模块。index.html,page.html,about.html 都是三个独立的页面，并且包含了 head 和 foot 。</p>
+<p>要在 index.html 中包含 head 和 foot，需要做两个操作：</p>
+<p>首先，在 site.config 中设置好路由和其包含的文件信息.</p>
+<pre>
+    <code class="json" tmpui-html-code="true">
+        "path": {
+            "/": {
+                "title": "tmpUI App!",
+                "preload": ["init"],
+                "append": ["framework"],
+                "body": {
+                    "/tpl/index.html": { "type": "html", "target": { "type": "body" } }
+                    "/tpl/head.html": { "type": "html", "target": { "type": "id", "val": "tpl_head" } }
+                    "/tpl/foot.html": { "type": "html", "target": { "type": "id", "val": "tpl_foot" } }
+                }
+            },
+        }
+    </code>
+</pre>
+<p>在上面这个配置中， head.html 和 foot.html 的内容会被写入到特定的 id，其具体值由 val 指定。因此，需要在 index.html 中预留位置：</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<div id="tpl_head"></div>
+.... index.html
+<div id="tpl_foot"></div>        
+    </code>
+</pre>
+<p>整个 div 都会被直接替换掉，而不是写入到内部，整个页面的最终 html 如下所示:</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+... head.html
+... index.html
+... foot.html
+    </code>
+</pre>
+
+<hr>
+<h2 id="goto_i18n">多语言支持</h2>
+<p>tmpUI 内置了多语言支持，要使用它，首先需要在配置文件中增加相应的设置项：</p>
+<pre>
+    <code class="json" tmpui-html-code="true">
+"language": {
+    "en": "/tpl/lang/en.json",
+    "cn": "/tpl/lang/cn.json"
+},
+    </code>
+</pre>
+<p>
+    上述设置项设置了两个语言文件，语言文件是由 json 组织的内容，比如：
+</p>
+<pre>
+    <code class="json" tmpui-html-code="true">
+{
+    "title_index": "tmpUI 应用程序",
+    "des_index": "tmpUI app - 单页应用",
+    "index_a1": "恭喜！你的第一个 tmpUI app 已经启动。",
+    "index_a2": "开始使用"
+}
+    </code>
+</pre>
+<p>
+    然后，在页面中，在需要进行多语言设定的地方，使用 i18n 属性进行设定：
+</p>
+<pre>
+    <code class="html" tmpui-html-code="true">
+<div id="index_a1" i18n="index_a1">.</div>     
+    </code>
+</pre>
+<p>
+    最后，需要调用 app.language_set 来实现语言内容的替换。建议是在页面所有内容加载完成之后再执行，可以用 app.ready 来设置这个操作。在本文档中，我们将 init.js 作为每个页面的初始化程序，每次加载都执行，并设置语言。
+</p>
+<pre>
+    <code class="javascript">
+app.language_set('cn');
+    </code>
+</pre>

@@ -1,0 +1,37 @@
+<div id="tpl_header"></div>
+<div class="container d-flex flex-grow-1">
+    <div class="w-100">
+        <div class="row">
+            <div class="col-12 d-block d-lg-none">
+                <div class="nav nav-pills d-flex justify-content-center" role="tablist">
+                    <a class="nav-link active show" href="#tab_introducation"  role="tab" data-toggle="pill">概览</a>
+                    <a class="nav-link" href="#tab_config"  role="tab" data-toggle="pill">配置文件</a>
+                    <a class="nav-link" href="#tab_function"  role="tab" data-toggle="pill">函数</a>
+                    <a class="nav-link" href="#tab_tips"  role="tab" data-toggle="pill">技巧</a>
+                </div>
+            </div>
+            <div class="col-2 d-lg-block d-none">
+                <div class="nav nav-pills flex-column" role="tablist">
+                    <a class="nav-link active show" href="#tab_introducation"  role="tab" data-toggle="pill">概览</a>
+                    <a class="nav-link" href="#tab_config"  role="tab" data-toggle="pill">配置文件</a>
+                    <a class="nav-link" href="#tab_function"  role="tab" data-toggle="pill">函数</a>
+                    <a class="nav-link" href="#tab_tips"  role="tab" data-toggle="pill">技巧</a>
+                </div>
+            </div>
+            <div class="col-12 col-lg-10">
+                <div class="tab-content" role="tabpanel">
+                    <div role="tabpanel" class="tab-pane  active" id="tab_introducation"><div id="tpl_introducation"></div></div>
+                    <div role="tabpanel" class="tab-pane" id="tab_config"><div id="tpl_config"></div></div>
+                    <div role="tabpanel" class="tab-pane" id="tab_function"><div id="tpl_function"></div></div>
+                    <div role="tabpanel" class="tab-pane" id="tab_tips"><div id="tpl_tips"></div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="tpl_footer"></div>
+<script>
+    $('title').attr('i18n', 'title_index');
+    $('meta[name=description]').attr('i18n', 'des_index');
+</script>
