@@ -250,6 +250,30 @@ class tmpUI {
       }
     }
 
+    let ctag = document.getElementsByTagName("code");
+
+    if (ctag.length > 0) {
+      for (let i in ctag) {
+        if (typeof ctag[i] === 'object') {
+          let ishtml = ctag[i].getAttribute("tmpui-html-code");
+          console.log(ishtml);
+
+          if (ishtml == 'true') {
+            let text = ctag[i].innerHTML;
+            ctag[i].innerHTML = text.toString().replace(/[<>&"]/g, c => {
+              return {
+                '<': '&lt;',
+                '>': '&gt;',
+                '&': '&amp;',
+                '"': '&quot;'
+              }[c];
+            });
+            ctag[i].setAttribute("tmpui-html-code", "loaded");
+          }
+        }
+      }
+    }
+
     return 'ok';
   }
 
