@@ -4,7 +4,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /**
  * tmpUI.js
- * version: 2
+ * version: 3
  * 
  */
 class tmpUI {
@@ -120,6 +120,7 @@ class tmpUI {
   loadConfig(url, cb) {
     let xhttp = new XMLHttpRequest();
     let config = {};
+    let config_url = url + '?' + Date.parse(new Date());
 
     xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -128,7 +129,7 @@ class tmpUI {
       }
     };
 
-    xhttp.open("GET", url, true);
+    xhttp.open("GET", config_url, true);
     xhttp.send();
   }
 
@@ -245,6 +246,30 @@ class tmpUI {
 
               this.route();
             });
+          }
+        }
+      }
+    }
+
+    let ctag = document.getElementsByTagName("code");
+
+    if (ctag.length > 0) {
+      for (let i in ctag) {
+        if (typeof ctag[i] === 'object') {
+          let ishtml = ctag[i].getAttribute("tmpui-html-code");
+          console.log(ishtml);
+
+          if (ishtml == 'true') {
+            let text = ctag[i].innerHTML;
+            ctag[i].innerHTML = text.toString().replace(/[<>&"]/g, c => {
+              return {
+                '<': '&lt;',
+                '>': '&gt;',
+                '&': '&amp;',
+                '"': '&quot;'
+              }[c];
+            });
+            ctag[i].setAttribute("tmpui-html-code", "loaded");
           }
         }
       }
