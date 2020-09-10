@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 2
+ * version: 3
  * 
  */
 
@@ -95,13 +95,14 @@ class tmpUI {
     loadConfig(url, cb) {
         let xhttp = new XMLHttpRequest();
         let config = {};
+        let config_url = url + '?' + Date.parse(new Date());
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 config = JSON.parse(this.responseText);
                 cb(config);
             }
         };
-        xhttp.open("GET", url, true);
+        xhttp.open("GET", config_url, true);
         xhttp.send();
     }
 
