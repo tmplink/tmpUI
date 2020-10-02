@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 3
+ * version: 4
  * 
  */
 
@@ -450,6 +450,10 @@ class tmpUI {
             localStorage.setItem('language', lang);
             this.language_build();
         }
+    }
+
+    languge_get(){
+        return localStorage.getItem('language');
     }
 
     language_build() {

@@ -4,7 +4,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /**
  * tmpUI.js
- * version: 3
+ * version: 4
  * 
  */
 class tmpUI {
@@ -519,6 +519,10 @@ class tmpUI {
       localStorage.setItem('language', lang);
       this.language_build();
     }
+  }
+
+  languge_get() {
+    return localStorage.getItem('language');
   }
 
   language_build() {
