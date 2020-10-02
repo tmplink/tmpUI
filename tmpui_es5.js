@@ -521,7 +521,7 @@ class tmpUI {
     }
   }
 
-  languge_get() {
+  language_get() {
     return localStorage.getItem('language');
   }
 
