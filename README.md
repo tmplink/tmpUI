@@ -9,6 +9,9 @@ tmpUI 的核心目标是在实现模块化的同时，最大程度避免各模�
 https://tmp.link 一个好用的网盘。  
 http://bs4.vx.link Bootstrap 4 中文文档。  
 
+可以在这里浏览 tmpUI 的文档，这是我们的官方文档    
+http://ui.tmp.link  
+
 # 功能
 tmpUI 目前已经实现的功能：
 
