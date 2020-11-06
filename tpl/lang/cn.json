@@ -2,5 +2,12 @@
     "title_index": "tmpUI 应用程序",
     "des_index": "tmpUI app - 单页应用",
     "index_a1": "恭喜！你的第一个 tmpUI app 已经启动。",
-    "index_a2": "开始使用"
+    "index_a2": "开始使用",
+
+    "title_404": "tmpUI 应用程序 - 不存在的页面",
+    "des_404": "tmpUI app - 404",
+    "pnf_des": "页面不存在",
+
+    "title_dynamic": "tmpUI 应用程序 - 动态路由",
+    "des_dynamic": "tmpUI app - 动态路由"
 }
