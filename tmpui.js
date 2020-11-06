@@ -11,6 +11,7 @@ class tmpUI {
     version = 0
     index = '/'
     debug = true
+    dynamicRouter = null
     language_config = false
     language_data = false
     language_setting = 'en'
@@ -49,8 +50,7 @@ class tmpUI {
             this.route();
             //当页面前进与后退的时候，popstate监听历史记录变化，触发对应页面的ajax请求。
             window.addEventListener('popstate', e => {
-                var newPage = e.state.newPage;
-                //this.route(newPage);
+                //var newPage = e.state.newPage;
                 this.route();
             })
         });
@@ -128,6 +128,13 @@ class tmpUI {
         }
         if (this.config.loadingAnimationTime !== undefined) {
             this.animation_time = this.config.loadingAnimationTime;
+        }
+        if (this.config.dynamicRouter !== undefined) {
+            this.dynamicRouter = this.config.dynamicRouter;
+        }
+        //todo:custom error page
+        if (this.config.pageNotFound !== undefined) {
+            this.pageNotFound = this.config.pageNotFound;
         }
     }
 
@@ -217,13 +224,12 @@ class tmpUI {
             for (let i in ctag) {
                 if (typeof (ctag[i]) === 'object') {
                     let ishtml = ctag[i].getAttribute("tmpui-html-code");
-                    console.log(ishtml);
                     if (ishtml == 'true') {
                         let text = ctag[i].innerHTML;
                         ctag[i].innerHTML = text.toString().replace(/[<>&"]/g, (c) => {
                             return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c];
                         });
-                        ctag[i].setAttribute("tmpui-html-code","loaded");
+                        ctag[i].setAttribute("tmpui-html-code", "loaded");
                     }
                 }
             }
@@ -271,31 +277,65 @@ class tmpUI {
         if (params.tmpui_page !== undefined) {
             url = params.tmpui_page;
         }
-        //未能找到页面时的页面
-        // if (this.config.path[url] !== undefined && this.config.nofound !== undefined) {
-        //     url = this.config.path[this.config.nofound];
-        // }
+        
         $('.tmpUIRes').remove();
         //查找路由
         this.loadpage(true);
-        if (this.config.path[url] !== undefined) {
-            //下载所需组件
-            this.loaderStart(url, () => {
-                //调整网页标题
-                document.title = this.config.path[url].title;
-                //写入到页面,处理资源时需要根据对应的资源类型进行处理
-                this.draw(url);
-                //处理链接关系
-                this.autofix();
-                //绑定链接事件
-                this.linkRebind();
-                //关闭载入动画
-                setTimeout(() => {
-                    this.loadpage(false);
-                }, this.loadDelay);
-
-            });
+        //路由未载入
+        if (this.config.path[url] === undefined) {
+            //if dynamicRouter has been configured.
+            if (this.dynamicRouter !== null) {
+                //find and load
+                let configure_url = this.config.siteroot + this.dynamicRouter+ url + '.json';
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = () => {
+                    if (xhttp.readyState == 4 && (xhttp.status == 200 || xhttp.status == 304)) {
+                        this.config.path[url] = JSON.parse(xhttp.responseText);
+                        this.rebuildConfig(this.config);
+                        this.route_core(url);
+                    }
+                    if (xhttp.readyState == 4 && (xhttp.status == 404 || xhttp.status == 403)) {
+                        this.route_unfound(url);
+                    }
+                };
+                xhttp.open("GET", configure_url + '?v=' + this.version, true);
+                xhttp.send();
+                return true;
+            } else {
+                //unfound page
+                this.route_unfound(url);
+                return false;
+            }
         }
+        this.route_core(url);
+    }
+
+    route_core(url) {
+        //下载所需组件
+        this.loaderStart(url, () => {
+            //调整网页标题
+            document.title = this.config.path[url].title;
+            //写入到页面,处理资源时需要根据对应的资源类型进行处理
+            this.draw(url);
+            //处理链接关系
+            this.autofix();
+            //绑定链接事件
+            this.linkRebind();
+            //关闭载入动画
+            setTimeout(() => {
+                this.loadpage(false);
+            }, this.loadDelay);
+        });
+    }
+
+    route_unfound(url) {
+        //todo:custom error page
+        if(this.pageNotFound!==null){
+            console.log(this.pageNotFound);
+            this.route_core(this.pageNotFound);
+        }
+        this.log('page not found : '+url);
+        return false;
     }
 
     draw(url) {
@@ -362,6 +402,7 @@ class tmpUI {
     loaderStart(url, cb) {
         this.loadCallback = cb;
         //常规加载顺序
+        console.log(url);
         for (let i in this.config.path[url].res) {
             window.tmpui_helper.loadTotal++;
         }
@@ -409,7 +450,7 @@ class tmpUI {
             this.animation_slice();
             $('#tmpui_loading_show').append('<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
         }
-        console.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
+        this.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
         let percent = Math.ceil(window.tmpui_helper.loadQueue / window.tmpui_helper.loadTotal * 100);
         $('.tmpui_curRate').animate({ 'width': percent + '%' }, this.animation_stime, () => {
             if (percent === 100) {
@@ -420,7 +461,7 @@ class tmpUI {
         });
 
         if (window.tmpui_helper.loadQueue == window.tmpui_helper.loadTotal) {
-            console.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
+            this.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
             if (typeof this.loadCallback === 'function') {
                 this.loadCallback();
             }
@@ -452,14 +493,14 @@ class tmpUI {
         }
     }
 
-    language_get(){
+    language_get() {
         return localStorage.getItem('language');
     }
 
     language_build() {
         //init language
         var lang = localStorage.getItem('language');
-        console.log("language setting...." + lang);
+        this.log("language setting...." + lang);
         if (lang === null) {
             var langs = navigator.language;
             this.language_setting = 'en';

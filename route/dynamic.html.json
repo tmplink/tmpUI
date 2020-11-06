@@ -1,0 +1,8 @@
+{
+    "title": "tmpUI App - Dynamic Router",
+    "preload": ["init"],
+    "append": ["framework"],
+    "body": {
+        "/tpl/dynamic.html": { "type": "html", "target": { "type": "body" } }
+    }
+}

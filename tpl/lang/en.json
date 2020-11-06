@@ -1,5 +1,13 @@
 {
     "title_index": "tmpUI application",
     "des_index": "tmpUI app - single page application",
-    "index_a1": "Congratulations! Your first tmpUI app has been launched."
+    "index_a1": "Congratulations! Your first tmpUI app has been launched.",
+    "index_a2": "Getting Start",
+
+    "title_404": "tmpUI application - page not found",
+    "des_404": "tmpUI app - 404",
+    "pnf_des": "Page not found",
+
+    "title_dynamic": "tmpUI application - Dynamic Router",
+    "des_dynamic": "tmpUI app - Dynamic Router"
 }
