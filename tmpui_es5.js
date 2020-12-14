@@ -4,7 +4,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /**
  * tmpUI.js
- * version: 4
+ * version: 5
  * 
  */
 class tmpUI {
@@ -670,7 +670,7 @@ class tmpUI {
     }
 
     if (!this.loadingPageInit) {
-      $('#tmpui').append('<div id="tmpui_loading_bg"></div>');
+      $('#tmpui').append('<div id="tmpui_loading_bg" style="background-color: rgba(255, 255, 255, 0.8);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter: saturate(180%) blur(20px);"></div>');
       $('#tmpui_loading_bg').append('<div id="tmpui_loading_show"></div>');
       $('#tmpui_loading_show').append('<div style="text-align:center;margin-bottom:20px;" id="tmpui_loading_content"></div>');
 
@@ -720,7 +720,7 @@ class tmpUI {
         result,
         match;
 
-    var add = function add(line, js) {
+    var add = function (line, js) {
       js ? code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n' : code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '';
       return add;
     };

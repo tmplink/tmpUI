@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 4
+ * version: 5
  * 
  */
 
@@ -582,7 +582,7 @@ class tmpUI {
             return false;
         }
         if (!this.loadingPageInit) {
-            $('#tmpui').append('<div id="tmpui_loading_bg"></div>');
+            $('#tmpui').append('<div id="tmpui_loading_bg" style="background-color: rgba(255, 255, 255, 0.8);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter: saturate(180%) blur(20px);"></div>');
             $('#tmpui_loading_bg').append('<div id="tmpui_loading_show"></div>');
             $('#tmpui_loading_show').append('<div style="text-align:center;margin-bottom:20px;" id="tmpui_loading_content"></div>');
             if (this.loadingIcon !== false) {
