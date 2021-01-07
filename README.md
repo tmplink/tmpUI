@@ -55,10 +55,10 @@ tmpUI 基于 GNU General Public License v3.0 发布
 
 其中，本项目还引用了其它开源项目的源代码，它们分别是：
 
-jQuery：为 Dom 操作提供便利。
+jQuery：为 Dom 操作提供便利。   
 https://github.com/jquery/jquery
 
-Babel : 提供 ES6 转换至 ES5 的实时支持，以便适配绝大多数浏览器。
+Babel : 提供 ES6 转换至 ES5 的实时支持，以便适配绝大多数浏览器。   
 https://github.com/babel/babel
 
 Bootstrap4 ：在演示程序中提供 UI 支持。   
