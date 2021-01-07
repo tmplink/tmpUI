@@ -355,7 +355,7 @@ class tmpUI {
                 }
             }
             if (this.config.path[url].res[i].type === 'js-es6') {
-                let content = Babel.transform(this.config.path[url].res[i].dom, { presets: ['env'] }).code;
+                let content = Babel.transform(this.config.path[url].res[i].dom, { presets: ['es2015'] }).code;
                 if (this.config.path[url].res[i].reload === false) {
                     if (this.config.reload_table[i] === false) {
                         this.config.reload_table[i] = true;
