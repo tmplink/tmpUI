@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 6
+ * version: 7
  * Github : https://github.com/tmplink/tmpUI
  * Date : 2021-1-7
  */
@@ -12,6 +12,10 @@ class tmpUI {
     version = 0
     index = '/'
     debug = true
+
+    Babel = false
+    jQuery = false
+
     dynamicRouter = null
     language_config = false
     language_data = false
@@ -48,18 +52,44 @@ class tmpUI {
             this.rebuildRunConfig();
             //初始化当前页面的路由
             //this.route(window.location.pathname);
-            this.route();
-            //当页面前进与后退的时候，popstate监听历史记录变化，触发对应页面的ajax请求。
-            window.addEventListener('popstate', e => {
-                //var newPage = e.state.newPage;
+            //Checking
+            this.CheckAddonLib(() => {
                 this.route();
-            })
+                //当页面前进与后退的时候，popstate监听历史记录变化，触发对应页面的ajax请求。
+                window.addEventListener('popstate', e => {
+                    //var newPage = e.state.newPage;
+                    this.route();
+                })
+            });
         });
+    }
+
+    CheckAddonLib(cb){
+        if(this.loadBabel===true){
+            console.log('wait for Babel');
+            if(typeof Babel === 'undefined'){
+                setTimeout(()=>{
+                    this.CheckAddonLib(cb);
+                },200);
+                return false;
+            }
+        }
+        if(this.loadJquery===true){
+            console.log('wait for jQuery');
+            if(typeof jQuery === 'undefined'){
+                setTimeout(()=>{
+                    this.CheckAddonLib(cb);
+                },200);
+                return false;
+            }
+        }
+        cb();
     }
 
     onExit(cb) {
         this.onExitfunction.push(cb);
     }
+
     doExit() {
         if (this.onExitfunction.length !== 0) {
             for (let x in this.onExitfunction) {
@@ -107,6 +137,14 @@ class tmpUI {
         xhttp.send();
     }
 
+    loadAddonLib(src) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.type = "text/javascript";
+        s.async = false;
+        document.getElementsByTagName('head')[0].appendChild(s);
+    }
+
     rebuildRunConfig(config) {
         //覆盖由配置文件设定的值
         if (this.config.loadingPage !== undefined) {
@@ -136,6 +174,17 @@ class tmpUI {
         //todo:custom error page
         if (this.config.pageNotFound !== undefined) {
             this.pageNotFound = this.config.pageNotFound;
+        }
+        //if need build in jquery and babel
+        if (this.config.jQuery !== false) {
+            this.loadAddonLib(this.config.jQuery);
+            this.log("Load jQuery:"+this.config.jQuery);
+            this.loadJquery = true;
+        }
+        if (this.config.Babel !== false) {
+            this.loadAddonLib(this.config.Babel);
+            this.log("Load Babel:"+this.config.Babel);
+            this.loadBabel = true;
         }
     }
 
@@ -278,7 +327,7 @@ class tmpUI {
         if (params.tmpui_page !== undefined) {
             url = params.tmpui_page;
         }
-        
+
         $('.tmpUIRes').remove();
         //查找路由
         this.loadpage(true);
@@ -287,7 +336,7 @@ class tmpUI {
             //if dynamicRouter has been configured.
             if (this.dynamicRouter !== null) {
                 //find and load
-                let configure_url = this.config.siteroot + this.dynamicRouter+ url + '.json';
+                let configure_url = this.config.siteroot + this.dynamicRouter + url + '.json';
                 let xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = () => {
                     if (xhttp.readyState == 4 && (xhttp.status == 200 || xhttp.status == 304)) {
@@ -331,11 +380,11 @@ class tmpUI {
 
     route_unfound(url) {
         //todo:custom error page
-        if(this.pageNotFound!==null){
+        if (this.pageNotFound !== null) {
             console.log(this.pageNotFound);
             this.route_core(this.pageNotFound);
         }
-        this.log('page not found : '+url);
+        this.log('page not found : ' + url);
         return false;
     }
 
@@ -355,7 +404,7 @@ class tmpUI {
                 }
             }
             if (this.config.path[url].res[i].type === 'js-es6') {
-                let content = Babel.transform(this.config.path[url].res[i].dom, { presets: ['es2015','stage-3'] }).code;
+                let content = Babel.transform(this.config.path[url].res[i].dom, { presets: ['es2015', 'stage-3'] }).code;
                 if (this.config.path[url].res[i].reload === false) {
                     if (this.config.reload_table[i] === false) {
                         this.config.reload_table[i] = true;
