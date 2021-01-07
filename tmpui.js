@@ -355,16 +355,16 @@ class tmpUI {
                 }
             }
             if (this.config.path[url].res[i].type === 'js-es6') {
-                let content = Babel.transform(this.config.path[url].res[i].dom, { presets: ['es2015'] }).code;
+                let content = Babel.transform(this.config.path[url].res[i].dom, { presets: ['es2015','stage-3'] }).code;
                 if (this.config.path[url].res[i].reload === false) {
                     if (this.config.reload_table[i] === false) {
                         this.config.reload_table[i] = true;
                         window.tmpui_helper.readyTotal++;
-                        $('body').append("<script class=\"tmpUIRes_once\" type=\"text/babel\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
+                        $('body').append("<script class=\"tmpUIRes_once\" type=\"text/javascript\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
                     }
                 } else {
                     window.tmpui_helper.readyTotal++;
-                    $('body').append("<script class=\"tmpUIRes\" type=\"text/babel\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
+                    $('body').append("<script class=\"tmpUIRes\" type=\"text/javascript\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
                 }
             }
             if (this.config.path[url].res[i].type === 'css') {
