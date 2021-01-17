@@ -1,9 +1,11 @@
 /**
  * tmpUI.js
- * version: 7
+ * version: 8
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-1-7
+ * Date : 2021-1-8
  */
+
+'use strict';
 
 class tmpUI {
 
@@ -64,22 +66,22 @@ class tmpUI {
         });
     }
 
-    CheckAddonLib(cb){
-        if(this.loadBabel===true){
-            console.log('wait for Babel');
-            if(typeof Babel === 'undefined'){
-                setTimeout(()=>{
+    CheckAddonLib(cb) {
+        if (this.loadBabel === true) {
+            this.log('wait for Babel');
+            if (typeof Babel === 'undefined') {
+                setTimeout(() => {
                     this.CheckAddonLib(cb);
-                },200);
+                }, 200);
                 return false;
             }
         }
-        if(this.loadJquery===true){
-            console.log('wait for jQuery');
-            if(typeof jQuery === 'undefined'){
-                setTimeout(()=>{
+        if (this.loadJquery === true) {
+            this.log('wait for jQuery');
+            if (typeof jQuery === 'undefined') {
+                setTimeout(() => {
                     this.CheckAddonLib(cb);
-                },200);
+                }, 200);
                 return false;
             }
         }
@@ -127,10 +129,12 @@ class tmpUI {
         let xhttp = new XMLHttpRequest();
         let config = {};
         let config_url = url + '?' + Date.parse(new Date());
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                config = JSON.parse(this.responseText);
+        xhttp.onloadend = (e) => {
+            if (xhttp.status == 200) {
+                config = JSON.parse(xhttp.responseText);
                 cb(config);
+            } else {
+                this.logError("Load config fail.");
             }
         };
         xhttp.open("GET", config_url, true);
@@ -142,7 +146,7 @@ class tmpUI {
         s.src = src;
         s.type = "text/javascript";
         s.async = false;
-        document.getElementsByTagName('head')[0].appendChild(s);
+        document.head.appendChild(s);
     }
 
     rebuildRunConfig(config) {
@@ -178,12 +182,12 @@ class tmpUI {
         //if need build in jquery and babel
         if (this.config.jQuery !== false) {
             this.loadAddonLib(this.config.jQuery);
-            this.log("Load jQuery:"+this.config.jQuery);
+            this.log("Load jQuery:" + this.config.jQuery);
             this.loadJquery = true;
         }
         if (this.config.Babel !== false) {
             this.loadAddonLib(this.config.Babel);
-            this.log("Load Babel:"+this.config.Babel);
+            this.log("Load Babel:" + this.config.Babel);
             this.loadBabel = true;
         }
     }
@@ -338,13 +342,12 @@ class tmpUI {
                 //find and load
                 let configure_url = this.config.siteroot + this.dynamicRouter + url + '.json';
                 let xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = () => {
-                    if (xhttp.readyState == 4 && (xhttp.status == 200 || xhttp.status == 304)) {
+                xhttp.onloadend = () => {
+                    if (xhttp.status == 200 || xhttp.status == 304) {
                         this.config.path[url] = JSON.parse(xhttp.responseText);
                         this.rebuildConfig(this.config);
                         this.route_core(url);
-                    }
-                    if (xhttp.readyState == 4 && (xhttp.status == 404 || xhttp.status == 403)) {
+                    } else {
                         this.route_unfound(url);
                     }
                 };
@@ -384,7 +387,7 @@ class tmpUI {
             console.log(this.pageNotFound);
             this.route_core(this.pageNotFound);
         }
-        this.log('page not found : ' + url);
+        this.log('Page not found : ' + url);
         return false;
     }
 
@@ -458,14 +461,12 @@ class tmpUI {
         if (this.language_config !== false) {
             this.language_build();
         }
-
         this.readyEvent();
     }
 
     loaderStart(url, cb) {
         this.loadCallback = cb;
         //常规加载顺序
-        console.log(url);
         for (let i in this.config.path[url].res) {
             window.tmpui_helper.loadTotal++;
         }
@@ -492,14 +493,24 @@ class tmpUI {
         } else {
             //如果这个URL没有加载，加载后返回。
             let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = () => {
-                if (xhttp.readyState == 4 && xhttp.status == 200) {
-                    window.tmpui_helper.loadQueue++;
-                    this.config.path[target].res[i].state = 1;
-                    this.config.path[target].res[i].dom = xhttp.responseText;
-                    this.loaderFinish();
+            xhttp.onloadend = () => {
+                if(xhttp.status!='200'&&xhttp.status!='302'){
+                    this.logError("can't load [http code "+ xhttp.status + ']' + i);
                 }
+                window.tmpui_helper.loadQueue++;
+                this.config.path[target].res[i].state = 1;
+                this.config.path[target].res[i].dom = xhttp.responseText;
+                this.loaderFinish();
             };
+            xhttp.ontimeout = () => {
+                this.logError("can't load [timeout]" + i);
+            }
+            xhttp.onerror = () => {
+                this.logError("can't load [error]" + i);
+            }
+            xhttp.onabort = () => {
+                this.logError("can't load [about]" + i);
+            }
             xhttp.open("GET", i + '?v=' + this.version, true);
             xhttp.send();
         }
@@ -513,7 +524,7 @@ class tmpUI {
             this.animation_slice();
             $('#tmpui_loading_show').append('<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
         }
-        this.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
+        //this.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
         let percent = Math.ceil(window.tmpui_helper.loadQueue / window.tmpui_helper.loadTotal * 100);
         $('.tmpui_curRate').animate({ 'width': percent + '%' }, this.animation_stime, () => {
             if (percent === 100) {
@@ -524,9 +535,14 @@ class tmpUI {
         });
 
         if (window.tmpui_helper.loadQueue == window.tmpui_helper.loadTotal) {
-            this.log("Queue:" + window.tmpui_helper.loadTotal + "|Finish:" + window.tmpui_helper.loadQueue);
+            this.log("Loading is complete.");
             if (typeof this.loadCallback === 'function') {
-                this.loadCallback();
+                this.log("Callback is running.");
+                try {
+                    this.loadCallback();
+                } catch (e) {
+                    this.logError("The callback contains errors, please check.");
+                }
             }
             this.loadCallback = null;
             this.progress_status = true;
@@ -673,13 +689,13 @@ class tmpUI {
 
     tpl(id, data) {
         let html = $('#' + id).html();
-        let return_html = this.TemplateEngine(html, data);
+        let return_html = this.templateEngine(html, data);
         return return_html;
     }
 
-    TemplateEngine(html, options) {
+    templateEngine(html, options) {
         if (html == '' || html == null) {
-            console.error('TemplateEngine::Html can\'t be null.');
+            console.error('templateEngine::Html can\'t be null.');
             return '';
         }
         var re = /<%(.+?)%>/g,
@@ -710,11 +726,15 @@ class tmpUI {
             vars[key] = value;
         });
         return vars;
-    }
+    } 
 
     log(msg) {
         if (this.debug) {
-            console.log(msg);
+            console.log("tmpUI::Log -> " + msg);
         }
+    }
+
+    logError(msg) {
+        console.error("tmpUI::Error -> " + msg);
     }
 }
