@@ -266,6 +266,7 @@ class tmpUI {
                     }
                     if (atag[i].getAttribute("tmpui-app") == 'true' && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
                         //获取绝对链接地址
+                        let newpage = atag[i].getAttribute("target") == '_blank'?true:false;
                         let url = '';
                         let a_url = atag[i].getAttribute("href");
                         let urlp = a_url.split("?");
@@ -283,14 +284,16 @@ class tmpUI {
                         //修改原有标签到新地址
                         atag[i].setAttribute("href", url);
                         //修改事件行为
-                        atag[i].addEventListener('click', e => {
-                            e.preventDefault();
-                            history.pushState({
-                                newPage: url
-                            }, null, url);
-                            //ajax('GET', url, 'page=' + url, this.loader, true);
-                            this.route();
-                        });
+                        if(!newpage){
+                            atag[i].addEventListener('click', e => {
+                                e.preventDefault();
+                                history.pushState({
+                                    newPage: url
+                                }, null, url);
+                                //ajax('GET', url, 'page=' + url, this.loader, true);
+                                this.route();
+                            });
+                        }
                     }
                 }
             }
