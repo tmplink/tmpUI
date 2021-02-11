@@ -332,7 +332,11 @@ class tmpUI {
         }
     }
 
-    open(a_url) {
+    open(a_url,newpage) {
+        if(newpage===true){
+            window.open(a_url);
+            return false;
+        }
         let url = this.index + '?tmpui_page=' + a_url;
         history.pushState({
             newPage: url
@@ -348,7 +352,8 @@ class tmpUI {
         let url = "/";
         let params = null;
         //获取参数
-        params = this.getUrlVars(window.location.href);
+        let href = window.location.href.substr(0,window.location.href.indexOf(window.location.hash));
+        params = this.getUrlVars(href);
         //默认文件
         if (params.tmpui_page !== undefined) {
             url = params.tmpui_page;
