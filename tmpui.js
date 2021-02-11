@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 9
+ * version: 9.1
  * Github : https://github.com/tmplink/tmpUI
  * Date : 2021-2-11
  */
@@ -114,6 +114,12 @@ class tmpUI {
             }
             this.readyFunction = [];
         }
+        //add GoogleAnalytics
+        this.log('Send GoogleAnalytics : ' + document.title);
+        gtag('event', 'page_view', {
+            page_title: document.title,
+            send_to: this.GoogleAnalytics
+        });
     }
 
     readyEvent() {
@@ -158,7 +164,7 @@ class tmpUI {
         document.head.appendChild(s1);
 
         var s2 = document.createElement('script');
-        s2.innerHTML = 'window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag(\'js\', new Date());';
+        s2.innerHTML = 'window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag(\'js\', new Date());gtag("config", "' + this.GoogleAnalytics + '");';
         s2.type = "text/javascript";
         s2.async = false;
         document.head.appendChild(s2);
@@ -266,7 +272,7 @@ class tmpUI {
                     }
                     if (atag[i].getAttribute("tmpui-app") == 'true' && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
                         //获取绝对链接地址
-                        let newpage = atag[i].getAttribute("target") == '_blank'?true:false;
+                        let newpage = atag[i].getAttribute("target") == '_blank' ? true : false;
                         let url = '';
                         let a_url = atag[i].getAttribute("href");
                         let urlp = a_url.split("?");
@@ -284,9 +290,10 @@ class tmpUI {
                         //修改原有标签到新地址
                         atag[i].setAttribute("href", url);
                         //修改事件行为
-                        if(!newpage){
+                        if (!newpage) {
                             atag[i].addEventListener('click', e => {
                                 e.preventDefault();
+                                console.log(url);
                                 history.pushState({
                                     newPage: url
                                 }, null, url);
@@ -335,12 +342,12 @@ class tmpUI {
         }
     }
 
-    open(a_url,newpage) {
-        if(newpage===true){
-            window.open(a_url);
+    open(a_url, newpage) {
+        let url = this.index + '?tmpui_page=' + a_url;
+        if (newpage === true) {
+            window.open(url);
             return false;
         }
-        let url = this.index + '?tmpui_page=' + a_url;
         history.pushState({
             newPage: url
         }, null, url);
@@ -355,7 +362,10 @@ class tmpUI {
         let url = "/";
         let params = null;
         //获取参数
-        let href = window.location.href.substr(0,window.location.href.indexOf(window.location.hash));
+        let href = window.location.href;
+        if (window.location.hash !== '') {
+            href = window.location.href.substr(0, window.location.href.indexOf(window.location.hash));
+        }
         params = this.getUrlVars(href);
         //默认文件
         if (params.tmpui_page !== undefined) {
@@ -401,8 +411,11 @@ class tmpUI {
             //写入到页面,处理资源时需要根据对应的资源类型进行处理
             this.draw(url);
             //add GoogleAnalytics
-            this.log('Send GoogleAnalytics : ' + document.title);
-            gtag('config', this.GoogleAnalytics, { 'page_path': url, 'page_title': document.title });
+            this.log('Send GoogleAnalytics : ' + url);
+            gtag('event', 'page_view', {
+                page_path: document.url,
+                send_to: this.GoogleAnalytics
+            });
             //处理链接关系
             this.autofix();
             //绑定链接事件
