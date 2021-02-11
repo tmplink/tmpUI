@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 8
+ * version: 9
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-1-17
+ * Date : 2021-2-11
  */
 
 'use strict';
@@ -17,6 +17,8 @@ class tmpUI {
 
     Babel = false
     jQuery = false
+    GoogleAnalytics = false
+    googleAnalyticsQueue = []
 
     dynamicRouter = null
     language_config = false
@@ -68,8 +70,8 @@ class tmpUI {
 
     CheckAddonLib(cb) {
         if (this.loadBabel === true) {
-            this.log('wait for Babel');
             if (typeof Babel === 'undefined') {
+                this.log('waitting for Babel');
                 setTimeout(() => {
                     this.CheckAddonLib(cb);
                 }, 200);
@@ -77,8 +79,8 @@ class tmpUI {
             }
         }
         if (this.loadJquery === true) {
-            this.log('wait for jQuery');
             if (typeof jQuery === 'undefined') {
+                this.log('waitting for jQuery');
                 setTimeout(() => {
                     this.CheckAddonLib(cb);
                 }, 200);
@@ -148,6 +150,19 @@ class tmpUI {
         s.async = false;
         document.head.appendChild(s);
     }
+    loadGtag(id) {
+        var s1 = document.createElement('script');
+        s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+        s1.type = "text/javascript";
+        s1.async = false;
+        document.head.appendChild(s1);
+
+        var s2 = document.createElement('script');
+        s2.innerHTML = 'window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag(\'js\', new Date());';
+        s2.type = "text/javascript";
+        s2.async = false;
+        document.head.appendChild(s2);
+    }
 
     rebuildRunConfig(config) {
         //覆盖由配置文件设定的值
@@ -189,6 +204,13 @@ class tmpUI {
             this.loadAddonLib(this.config.Babel);
             this.log("Load Babel:" + this.config.Babel);
             this.loadBabel = true;
+        }
+        //Add GoogleAnalytics
+        if (this.config.GoogleAnalytics !== false) {
+            this.loadGtag(this.config.GoogleAnalytics);
+            this.log("Load GoogleAnalytics:" + this.config.GoogleAnalytics);
+            this.loadGoogleAnalytics = this.config.GoogleAnalytics;
+            this.GoogleAnalytics = this.config.GoogleAnalytics;
         }
     }
 
@@ -244,6 +266,7 @@ class tmpUI {
                     }
                     if (atag[i].getAttribute("tmpui-app") == 'true' && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
                         //获取绝对链接地址
+                        let newpage = atag[i].getAttribute("target") == '_blank'?true:false;
                         let url = '';
                         let a_url = atag[i].getAttribute("href");
                         let urlp = a_url.split("?");
@@ -261,14 +284,16 @@ class tmpUI {
                         //修改原有标签到新地址
                         atag[i].setAttribute("href", url);
                         //修改事件行为
-                        atag[i].addEventListener('click', e => {
-                            e.preventDefault();
-                            history.pushState({
-                                newPage: url
-                            }, null, url);
-                            //ajax('GET', url, 'page=' + url, this.loader, true);
-                            this.route();
-                        });
+                        if(!newpage){
+                            atag[i].addEventListener('click', e => {
+                                e.preventDefault();
+                                history.pushState({
+                                    newPage: url
+                                }, null, url);
+                                //ajax('GET', url, 'page=' + url, this.loader, true);
+                                this.route();
+                            });
+                        }
                     }
                 }
             }
@@ -310,7 +335,11 @@ class tmpUI {
         }
     }
 
-    open(a_url) {
+    open(a_url,newpage) {
+        if(newpage===true){
+            window.open(a_url);
+            return false;
+        }
         let url = this.index + '?tmpui_page=' + a_url;
         history.pushState({
             newPage: url
@@ -326,7 +355,8 @@ class tmpUI {
         let url = "/";
         let params = null;
         //获取参数
-        params = this.getUrlVars(window.location.href);
+        let href = window.location.href.substr(0,window.location.href.indexOf(window.location.hash));
+        params = this.getUrlVars(href);
         //默认文件
         if (params.tmpui_page !== undefined) {
             url = params.tmpui_page;
@@ -370,6 +400,9 @@ class tmpUI {
             document.title = this.config.path[url].title;
             //写入到页面,处理资源时需要根据对应的资源类型进行处理
             this.draw(url);
+            //add GoogleAnalytics
+            this.log('Send GoogleAnalytics : ' + document.title);
+            gtag('config', this.GoogleAnalytics, { 'page_path': url, 'page_title': document.title });
             //处理链接关系
             this.autofix();
             //绑定链接事件
@@ -399,11 +432,11 @@ class tmpUI {
                     if (this.config.reload_table[i] === false) {
                         this.config.reload_table[i] = true;
                         window.tmpui_helper.readyTotal++;
-                        $('body').append("<script class=\"tmpUIRes_once\" type=\"text/javascript\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
+                        $('body').append("<script class=\"tmpUIRes_once\" type=\"text/javascript\" \">\n" + content + ";\nwindow.tmpui_helper.readyQueue++;</script>\n");
                     }
                 } else {
                     window.tmpui_helper.readyTotal++;
-                    $('body').append("<script class=\"tmpUIRes\" type=\"text/javascript\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
+                    $('body').append("<script class=\"tmpUIRes\" type=\"text/javascript\" \">\n" + content + ";\nwindow.tmpui_helper.readyQueue++;</script>\n");
                 }
             }
             if (this.config.path[url].res[i].type === 'js-es6') {
@@ -412,11 +445,11 @@ class tmpUI {
                     if (this.config.reload_table[i] === false) {
                         this.config.reload_table[i] = true;
                         window.tmpui_helper.readyTotal++;
-                        $('body').append("<script class=\"tmpUIRes_once\" type=\"text/javascript\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
+                        $('body').append("<script class=\"tmpUIRes_once\" type=\"text/javascript\" \">\n" + content + ";\nwindow.tmpui_helper.readyQueue++;</script>\n");
                     }
                 } else {
                     window.tmpui_helper.readyTotal++;
-                    $('body').append("<script class=\"tmpUIRes\" type=\"text/javascript\" \">\n" + content + "\nwindow.tmpui_helper.readyQueue++;</script>\n");
+                    $('body').append("<script class=\"tmpUIRes\" type=\"text/javascript\" \">\n" + content + ";\nwindow.tmpui_helper.readyQueue++;</script>\n");
                 }
             }
             if (this.config.path[url].res[i].type === 'css') {
@@ -494,8 +527,8 @@ class tmpUI {
             //如果这个URL没有加载，加载后返回。
             let xhttp = new XMLHttpRequest();
             xhttp.onloadend = () => {
-                if(xhttp.status!='200'&&xhttp.status!='302'){
-                    this.logError("can't load [http code "+ xhttp.status + ']' + i);
+                if (xhttp.status != '200' && xhttp.status != '302') {
+                    this.logError("can't load [http code " + xhttp.status + ']' + i);
                 }
                 window.tmpui_helper.loadQueue++;
                 this.config.path[target].res[i].state = 1;
@@ -726,7 +759,7 @@ class tmpUI {
             vars[key] = value;
         });
         return vars;
-    } 
+    }
 
     log(msg) {
         if (this.debug) {
