@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 9.1
+ * version: 9.4
  * Github : https://github.com/tmplink/tmpUI
  * Date : 2021-2-11
  */
@@ -36,6 +36,7 @@ class tmpUI {
     progress_status = false
     animation_time = 500
     animation_stime = 0
+    currentRoute = '/'
     onExitfunction = []
 
     constructor(url) {
@@ -118,6 +119,7 @@ class tmpUI {
         this.log('Send GoogleAnalytics : ' + document.title);
         gtag('event', 'page_view', {
             page_title: document.title,
+            page_path : this.currentRoute,
             send_to: this.GoogleAnalytics
         });
     }
@@ -366,6 +368,10 @@ class tmpUI {
         if (window.location.hash !== '') {
             href = window.location.href.substr(0, window.location.href.indexOf(window.location.hash));
         }
+        //add GoogleAnalytics
+        let ga_path = window.location.href.replace(window.location.origin,'');
+        this.log('Send GoogleAnalytics : ' + ga_path);
+        this.currentRoute = ga_path;
         params = this.getUrlVars(href);
         //默认文件
         if (params.tmpui_page !== undefined) {
@@ -410,12 +416,6 @@ class tmpUI {
             document.title = this.config.path[url].title;
             //写入到页面,处理资源时需要根据对应的资源类型进行处理
             this.draw(url);
-            //add GoogleAnalytics
-            this.log('Send GoogleAnalytics : ' + url);
-            gtag('event', 'page_view', {
-                page_path: document.url,
-                send_to: this.GoogleAnalytics
-            });
             //处理链接关系
             this.autofix();
             //绑定链接事件
