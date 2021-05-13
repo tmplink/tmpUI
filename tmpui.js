@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 9.4
+ * version: 10
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-2-11
+ * Date : 2021-5-13
  */
 
 'use strict';
@@ -38,6 +38,7 @@ class tmpUI {
     animation_stime = 0
     currentRoute = '/'
     onExitfunction = []
+    filesCache = []
 
     constructor(url) {
         this.state = {
@@ -119,7 +120,7 @@ class tmpUI {
         this.log('Send GoogleAnalytics : ' + document.title);
         gtag('event', 'page_view', {
             page_title: document.title,
-            page_path : this.currentRoute,
+            page_path: this.currentRoute,
             send_to: this.GoogleAnalytics
         });
     }
@@ -369,7 +370,7 @@ class tmpUI {
             href = window.location.href.substr(0, window.location.href.indexOf(window.location.hash));
         }
         //add GoogleAnalytics
-        let ga_path = window.location.href.replace(window.location.origin,'');
+        let ga_path = window.location.href.replace(window.location.origin, '');
         this.log('Send GoogleAnalytics : ' + ga_path);
         this.currentRoute = ga_path;
         params = this.getUrlVars(href);
@@ -484,6 +485,12 @@ class tmpUI {
                     }
                 } else {
                     $('body').append("<div class=\"tmpUIRes\" style=\"display:none\" \">\n" + content + "</div>\n");
+                }
+            }
+            if (this.config.path[url].res[i].type === 'file') {
+                this.filesCache[i] = this.config.path[url].res[i].dom;
+                if (this.config.reload_table[i] === false) {
+                    this.config.reload_table[i] = true;
                 }
             }
             if (this.config.path[url].res[i].type === 'html') {
@@ -731,6 +738,10 @@ class tmpUI {
             $('body').css('overflow', '');
             $('#tmpui').fadeOut();
         }
+    }
+
+    getFile(url) {
+        return this.filesCache[url];
     }
 
     tpl(id, data) {
