@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 11
+ * version: 12
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-6-17
+ * Date : 2021-6-21
  */
 
  'use strict';
@@ -15,6 +15,7 @@
      index = '/'
      debug = true
      reload_table = {}
+     resPath = ''
  
      Babel = false
      jQuery = false
@@ -199,6 +200,9 @@
          }
          if (this.config.dynamicRouter !== undefined) {
              this.dynamicRouter = this.config.dynamicRouter;
+         }
+         if (this.config.resPath !== undefined) {
+             this.resPath = this.config.resPath;
          }
          //todo:custom error page
          if (this.config.pageNotFound !== undefined) {
@@ -388,7 +392,7 @@
              //if dynamicRouter has been configured.
              if (this.dynamicRouter !== null) {
                  //find and load
-                 let configure_url = this.config.siteroot + this.dynamicRouter + url + '.json';
+                 let configure_url = this.resPath + this.dynamicRouter + url + '.json';
                  let xhttp = new XMLHttpRequest();
                  xhttp.onloadend = () => {
                      if (xhttp.status == 200 || xhttp.status == 304) {
@@ -447,7 +451,7 @@
              let content_reload = this.config.path[url].res[i].reload;
  
              if (content_type === 'js' || content_type === 'js-es6') {
-                 if(content_type === 'js-es6'){
+                 if (content_type === 'js-es6') {
                      content = Babel.transform(content, { presets: ['es2015', 'stage-3'] }).code;
                  }
                  if (content_reload === false) {
@@ -555,7 +559,7 @@
              xhttp.onabort = () => {
                  this.logError("can't load [abort]" + i);
              }
-             xhttp.open("GET", i + '?v=' + this.version, true);
+             xhttp.open("GET", this.resPath + i + '?v=' + this.version, true);
              xhttp.send();
          }
      }
