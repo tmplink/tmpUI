@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 16
+ * version: 17
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-15
+ * Date : 2021-7-19
  */
 
  'use strict';
@@ -359,33 +359,33 @@
  
          //路由未载入
          if (this.config.path[url] === undefined) {
-             //if dynamicRouter has been configured.
+             //如果启用了动态配置
              if (this.dynamicRouter !== null) {
-                 //find and load
+                 //尝试找到这个配置
                  let configure_url = this.resPath + this.dynamicRouter + url + '.json';
                  let xhttp = new XMLHttpRequest();
                  xhttp.onloadend = () => {
                      if (xhttp.status == 200 || xhttp.status == 304) {
                          this.config.path[url] = JSON.parse(xhttp.responseText);
                          this.rebuildConfig(this.config);
-                         this.routeCore(url);
+                         this.route200(url);
                      } else {
-                         this.routeUnfound(url);
+                         this.route404(url);
                      }
                  };
                  xhttp.open("GET", configure_url + '?v=' + this.version, true);
                  xhttp.send();
                  return true;
-             } else {
-                 //unfound page
-                 this.routeUnfound(url);
-                 return false;
              }
+ 
+             //无法找到配置
+             this.route404(url);
+         }else{
+             this.route200(url);
          }
-         this.routeCore(url);
      }
  
-     routeCore(url) {
+     route200(url) {
          //下载所需组件
          this.loaderStart(url, () => {
              //调整网页标题
@@ -399,11 +399,14 @@
          });
      }
  
-     routeUnfound(url) {
-         //todo:custom error page
-         if (this.pageNotFound !== null) {
-             console.log(this.pageNotFound);
-             this.routeCore(this.pageNotFound);
+     route404(url) {
+         this.log('Page not found : ' + url);
+         if (this.pageNotFound !== undefined) {
+             //在配置了 404 页面的情况下
+             this.route200(this.pageNotFound);
+         }else{
+             //在没有配置 404 页面的情况下
+             this.route200('/');
          }
          this.log('Page not found : ' + url);
          return false;
