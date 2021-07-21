@@ -1,11 +1,11 @@
 /**
  * tmpUI.js
- * version: 18
+ * version: 19
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-19
+ * Date : 2021-7-21
  */
 
-class tmpUI {
+ class tmpUI {
 
     status = {}
     config = {}
@@ -335,10 +335,8 @@ class tmpUI {
             url = params.tmpui_page;
         }
 
-        var element = document.getElementsByClassName('tmpUIRes');
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
+        //移除一次性资源
+        document.querySelectorAll(".tmpUIRes").forEach(e => e.parentNode.removeChild(e));
 
         //查找路由
         this.loadpage(true);
@@ -371,7 +369,7 @@ class tmpUI {
 
             //无法找到配置
             this.route404(url);
-        } else {
+        }else{
             this.route200(url);
         }
     }
@@ -395,7 +393,7 @@ class tmpUI {
         if (this.pageNotFound !== undefined) {
             //在配置了 404 页面的情况下
             this.route200(this.pageNotFound);
-        } else {
+        }else{
             //在没有配置 404 页面的情况下
             this.route200('/');
         }
