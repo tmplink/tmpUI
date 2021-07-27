@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 19
+ * version: 20
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-21
+ * Date : 2021-7-27
  */
 
  class tmpUI {
@@ -14,6 +14,7 @@
     debug = true
     reloadTable = {}
     resPath = ''
+    pageReady = false
 
     googleAnalytics = false
     googleAnalyticsQueue = []
@@ -88,7 +89,12 @@
     }
 
     ready(cb) {
-        this.readyFunction.push(cb);
+        if(this.pageReady){
+            cb();
+        }else{
+            this.readyFunction.push(cb);
+        }
+        
     }
 
     readyExec() {
@@ -112,6 +118,7 @@
             this.readyExec();
             this.loadpage(false);
             this.log("Ready");
+            this.pageReady = true;
         } else {
             setTimeout(() => {
                 this.readyEvent();
@@ -316,6 +323,9 @@
         let url = "/";
         let params = null;
         let hash = false;
+
+        //
+        this.pageReady = false;
 
         //获取参数
         let href = window.location.href;
