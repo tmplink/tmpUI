@@ -13,20 +13,22 @@
     <script type="text/javascript" src="/tmpui.js"></script>
 
     <script type="text/javascript">
-        var app = new tmpUI({
-            "googleAnalytics": "G-4DGYKM9EHS",
-            "loadingIcon": "/tpl/img/logo.png",
-            "loadingPage": true,
-            "loadingProgress": true,
-            "path": {
-                "/": {
-                    "title": "tmpUI App!",
-                    "body": {
-                        "./tpl/index.html": { "type": "html", "target": { "type": "body" } }
-                    }
-                }
+var app = new tmpUI({
+    "googleAnalytics": "G-4DGYKM9EHS",
+    "loadingIcon": "/tpl/img/logo.png",
+    "loadingPage": true,
+    "loadingProgress": true,
+    "path": {
+        "/": {
+            "title": "tmpUI App!",
+            "body": {
+                "./tpl/index.html": { "type": "html", "target": { "type": "body" } },
+                "./tpl/header.html": { "type": "html", "target": { "type": "id","val":"tpl_header" } },
+                "./tpl/footer.html": { "type": "html", "target": { "type": "id","val":"tpl_footer" } }
             }
-        });
+        }
+    }
+});
     </script>
 
 </head>
