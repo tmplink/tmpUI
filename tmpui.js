@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 20
+ * version: 21
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-27
+ * Date : 2021-7-29
  */
 
  class tmpUI {
@@ -20,6 +20,7 @@
     googleAnalyticsQueue = []
 
     dynamicRouter = null
+    languageDefault = 'en'
     languageConfig = false
     languageData = false
     languageSetting = 'en'
@@ -89,12 +90,12 @@
     }
 
     ready(cb) {
-        if(this.pageReady){
+        if (this.pageReady) {
             cb();
-        }else{
+        } else {
             this.readyFunction.push(cb);
         }
-        
+
     }
 
     readyExec() {
@@ -167,9 +168,11 @@
         if (this.config.resPath !== undefined) {
             this.resPath = this.config.resPath;
         }
-        //todo:custom error page
         if (this.config.pageNotFound !== undefined) {
             this.pageNotFound = this.config.pageNotFound;
+        }
+        if (this.config.languageDefault !== undefined) {
+            this.languageDefault = this.config.languageDefault;
         }
 
         //Add GoogleAnalytics
@@ -379,7 +382,7 @@
 
             //无法找到配置
             this.route404(url);
-        }else{
+        } else {
             this.route200(url);
         }
     }
@@ -403,7 +406,7 @@
         if (this.pageNotFound !== undefined) {
             //在配置了 404 页面的情况下
             this.route200(this.pageNotFound);
-        }else{
+        } else {
             //在没有配置 404 页面的情况下
             this.route200('/');
         }
@@ -654,12 +657,18 @@
                     this.languageSetting = 'en';
                     break;
                 default:
-                    this.languageSetting = 'en';
+
+                    this.languageSetting = this.languageDefault;
                     break;
             }
             localStorage.setItem('tmpUI_language', this.languageSetting);
         } else {
             this.languageSetting = lang;
+        }
+
+        //如果设定的语言不存在与配置文件中，则给定一个默认的语言配置
+        if (this.languageConfig[this.languageSetting] === undefined) {
+            this.languageSetting = this.languageDefault;
         }
 
         window.tmpuiHelper.readyTotal++;
