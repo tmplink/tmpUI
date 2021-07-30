@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>tmpUI App</title>
+    <meta name="description" content="start">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+
+    <script type="text/javascript" src="/tmpui.checker.js"></script>
+    <script type="text/javascript" src="/tmpui.js"></script>
+
+    <script type="text/javascript">
+        var app = new tmpUI({
+            "googleAnalytics": "G-4DGYKM9EHS",
+            "loadingIcon": "/tpl/img/logo.png",
+            "loadingPage": true,
+            "loadingProgress": true,
+            "preload": {
+                "bootstrap": {
+                    "/tpl/plugin/bootstrap4/jquery.min.js": { "type": "js", "reload": false },
+                    "/tpl/plugin/bootstrap4/bootstrap.bundle.min.js": { "type": "js", "reload": false },
+                    "/tpl/plugin/bootstrap4/bootstrap.min.css": { "type": "css", "reload": false },
+                    "/tpl/css/reset.css": { "type": "css", "reload": false },
+                },
+                "functions":{
+                    "./tpl/functions.js": { "type": "js", "reload": false },
+                }
+            },
+            "path": {
+                "/": {
+                    "title": "tmpUI App!",
+                    "preload":["bootstrap","functions"],
+                    "body": {
+                        "./tpl/index.html": { "type": "html", "target": { "type": "body" } },
+                        "./tpl/header.html": { "type": "html", "target": { "type": "id", "val": "tpl_header" } },
+                        "./tpl/footer.html": { "type": "html", "target": { "type": "id", "val": "tpl_footer" } },
+                        "./tpl/tpl.js": { "type": "js"},
+                    }
+                }
+            }
+        });
+    </script>
+
+</head>
+
+<body>
+    <div id="tmpui"></div>
+    <div id="tmpui_body" class="d-flex flex-column"></div>
+</body>
+
+</html>

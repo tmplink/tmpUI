@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 21
+ * version: 22
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-29
+ * Date : 2021-7-30
  */
 
  class tmpUI {
@@ -762,6 +762,11 @@
 
     tpl(id, data) {
         let html = $('#' + id).html();
+
+        if(data===undefined){
+            data = {};
+        }
+
         let return_html = this.templateEngine(html, data);
         return return_html;
     }

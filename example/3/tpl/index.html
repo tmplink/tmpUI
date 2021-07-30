@@ -1,0 +1,49 @@
+<div id="tpl_header"></div>
+<div class="container d-flex flex-grow-1">
+    <div class="align-self-center w-100">
+
+        <div class="text-center display-4 mb-4">
+            Using tmpUI.tpl()
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <div class="card">
+                    <div class="card-title h3 text-center mt-2">
+                        without params
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center h3" id="no_array"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="card">
+                    <div class="card-title h3 text-center mt-2">
+                        with params
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center h3" id="with_object"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/template" id="tpl_no_array">
+            <ul class="list-unstyled">
+                <% for(let i = 0;i<=10;i++){ %>
+                    <li><% randomString(6) %></li>
+                <% } %>
+            </ul>
+        </script>
+
+        <script type="text/template" id="tpl_with_object">
+            <ul class="list-unstyled">
+                <% for(let i in obj){ %>
+                    <li><% obj[i] %></li>
+                <% } %>
+            </ul>
+        </script>
+    </div>
+</div> 
+<div id="tpl_footer"></div>
