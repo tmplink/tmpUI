@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 22
+ * version: 23
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-30
+ * Date : 2021-7-31
  */
 
  class tmpUI {
@@ -10,7 +10,7 @@
     status = {}
     config = {}
     version = 0
-    index = '/'
+    index = ''
     debug = true
     reloadTable = {}
     resPath = ''
@@ -165,9 +165,11 @@
         if (this.config.dynamicRouter !== undefined) {
             this.dynamicRouter = this.config.dynamicRouter;
         }
-        if (this.config.resPath !== undefined) {
-            this.resPath = this.config.resPath;
+
+        if (this.config.siteRoot !== undefined) {
+            this.siteRoot = this.config.siteRoot;
         }
+        
         if (this.config.pageNotFound !== undefined) {
             this.pageNotFound = this.config.pageNotFound;
         }
@@ -242,9 +244,9 @@
                         let urlp = a_url.split("?");
                         //
                         if (urlp.length === 1) {
-                            url = this.index + '?tmpui_page=' + urlp[0];
+                            url = this.siteRoot + this.index + '?tmpui_page=' + urlp[0];
                         } else {
-                            url = this.index + '?tmpui_page=' + urlp[0] + '&' + urlp[1];
+                            url = this.siteRoot + this.index + '?tmpui_page=' + urlp[0] + '&' + urlp[1];
                         }
 
                         //生成App内链接地址
@@ -288,18 +290,18 @@
     }
 
     autofix() {
-        if (this.config.siteroot !== '') {
-            var siteroot = this.config.siteroot;
+        if (this.config.siteRoot !== '') {
+            var siteRoot = this.config.siteRoot;
             this.domSelect('[tmpui-root]', (dom) => {
                 let autofixer = dom.getAttribute("tmpui-root");
                 let src = dom.getAttribute("src");
                 let href = dom.getAttribute("href");
                 if (autofixer === 'true' && src !== undefined && src !== null) {
-                    dom.setAttribute("src", siteroot + src);
+                    dom.setAttribute("src", siteRoot + src);
                     dom.setAttribute("tmpui-root", 'false');
                 }
                 if (autofixer === 'true' && href !== undefined && href !== null) {
-                    dom.setAttribute("href", siteroot + href);
+                    dom.setAttribute("href", siteRoot + href);
                     dom.setAttribute("tmpui-root", 'false');
                 }
             });
@@ -307,7 +309,7 @@
     }
 
     open(a_url, newpage) {
-        let url = this.index + '?tmpui_page=' + a_url;
+        let url = this.siteRoot + this.index + '?tmpui_page=' + a_url;
         if (newpage === true) {
             window.open(url);
             return false;
@@ -364,7 +366,16 @@
             //如果启用了动态配置
             if (this.dynamicRouter !== null) {
                 //尝试找到这个配置
-                let configure_url = this.resPath + this.dynamicRouter + url + '.json';
+                let configure_url = '';
+                if(this.dynamicRouter.substr(0,1)==='/'){
+                    console.log(1);
+                    configure_url = this.dynamicRouter + url + '.json';
+                }else{
+                    console.log(this.siteRoot);
+                    configure_url = this.siteRoot + this.dynamicRouter + url + '.json';
+                }
+                this.log('Try to load dynamic router : ' + configure_url);
+
                 let xhttp = new XMLHttpRequest();
                 xhttp.onloadend = () => {
                     if (xhttp.status == 200 || xhttp.status == 304) {
@@ -541,6 +552,7 @@
             window.tmpuiHelper.loadQueue++;
             this.loaderFinish();
         } else {
+
             //如果这个URL没有加载，加载后返回。
             let xhttp = new XMLHttpRequest();
             xhttp.onloadend = () => {
@@ -561,7 +573,14 @@
             xhttp.onabort = () => {
                 this.logError("can't load [abort]" + i);
             }
-            xhttp.open("GET", this.resPath + i + '?v=' + this.version, true);
+
+            //如果路径的开头是 / ，则不附加 siteRoot
+            if (i.substr(0, 1) === '/') {
+                xhttp.open('GET', i + '?v=' + this.version, true);
+            } else {
+                xhttp.open('GET', this.siteRoot + i + '?v=' + this.version, true);
+            }
+
             xhttp.send();
         }
     }
@@ -621,27 +640,27 @@
         var lang = localStorage.getItem('tmpUI_language');
         if (lang === null) {
             this.log("language auto detect : " + lang);
-            var langs = navigator.language;
+            var langs = navigator.language.toLowerCase();
             switch (langs) {
-                case 'zh-CN':
+                case 'zh-cn':
                     this.languageSetting = 'cn';
                     break;
-                case 'zh-TW':
+                case 'zh-tw':
                     this.languageSetting = 'hk';
                     break;
-                case 'zh-SG':
+                case 'zh-sg':
                     this.languageSetting = 'cn';
                     break;
-                case 'zh-HK':
+                case 'zh-hk':
                     this.languageSetting = 'hk';
                     break;
-                case 'ja-JP':
+                case 'ja-jp':
                     this.languageSetting = 'jp';
                     break;
-                case 'ko-KR':
+                case 'ko-kr':
                     this.languageSetting = 'kr';
                     break;
-                case 'ru-MI':
+                case 'ru-mi':
                     this.languageSetting = 'ru';
                     break;
                 case 'ms':
@@ -653,7 +672,7 @@
                 case 'fr':
                     this.languageSetting = 'fr';
                     break;
-                case 'en-US':
+                case 'en-us':
                     this.languageSetting = 'en';
                     break;
                 default:
