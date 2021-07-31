@@ -1,0 +1,10 @@
+{
+    "index_title": "Dynamic Routing",
+    "index_page1_title": "This is the first page",
+    "index_page2_title": "This is the second page",
+    "index_btn_goto_page1": "Go to the first page",
+    "index_btn_goto_page2": "Go to the second page",
+    "index_btn_return": "Return to index",
+    "index_switch_btn_cn": "切换到中文",
+    "index_switch_btn_en": "Switch to English"
+}

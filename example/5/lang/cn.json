@@ -1,0 +1,10 @@
+{
+    "index_title":"动态路由",
+    "index_page1_title":"这是第一个页面",
+    "index_page2_title":"这是第二个页面",
+    "index_btn_goto_page1":"去第一个页面",
+    "index_btn_goto_page2":"去第二个页面",
+    "index_btn_return":"返回首页",
+    "index_switch_btn_cn":"切换到中文",
+    "index_switch_btn_en":"Switch to English"
+}
