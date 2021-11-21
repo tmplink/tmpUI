@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 23
+ * version: 24
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-7-31
+ * Date : 2021-11-21
  */
 
  class tmpUI {
@@ -131,13 +131,13 @@
         var s1 = document.createElement('script');
         s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
         s1.type = "text/javascript";
-        s1.async = false;
+        s1.async = true;
         document.head.appendChild(s1);
 
         var s2 = document.createElement('script');
         s2.innerHTML = 'window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag(\'js\', new Date());gtag("config", "' + this.googleAnalytics + '");';
         s2.type = "text/javascript";
-        s2.async = false;
+        s2.async = true;
         document.head.appendChild(s2);
     }
 
