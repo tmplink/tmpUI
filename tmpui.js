@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 25
+ * version: 26
  * Github : https://github.com/tmplink/tmpUI
  * Date : 2021-12-13
  */
@@ -11,6 +11,7 @@
     config = {}
     version = 0
     index = '/'
+    siteRoot = ''
     debug = true
     reloadTable = {}
     resPath = ''
@@ -144,42 +145,48 @@
     rebuildRunConfig(config) {
 
         //覆盖由配置文件设定的值
-        if (this.config.loadingPage !== undefined) {
-            this.loadingPage = this.config.loadingPage;
+        if (config.loadingPage !== undefined) {
+            this.loadingPage = config.loadingPage;
         }
-        if (this.config.loadingText !== undefined) {
-            this.loadingText = this.config.loadingText;
+        if (config.loadingText !== undefined) {
+            this.loadingText = config.loadingText;
         }
-        if (this.config.loadingIcon !== undefined) {
-            this.loadingIcon = this.config.loadingIcon;
+        if (config.loadingIcon !== undefined) {
+            this.loadingIcon = config.loadingIcon;
         }
-        if (this.config.version !== undefined) {
-            this.version = this.config.version;
+        if (config.version !== undefined) {
+            this.version = config.version;
         }
-        if (this.config.language !== undefined) {
-            this.languageConfig = this.config.language;
+        if (config.language !== undefined) {
+            this.languageConfig = config.language;
         }
-        if (this.config.loadingProgress !== undefined) {
-            this.progressEnable = this.config.loadingProgress;
+        if (config.loadingProgress !== undefined) {
+            this.progressEnable = config.loadingProgress;
         }
-        if (this.config.dynamicRouter !== undefined) {
-            this.dynamicRouter = this.config.dynamicRouter;
+        if (config.dynamicRouter !== undefined) {
+            this.dynamicRouter = config.dynamicRouter;
         }
-        if (this.config.resPath !== undefined) {
-            this.resPath = this.config.resPath;
+        if (config.resPath !== undefined) {
+            this.resPath = config.resPath;
         }
-        if (this.config.pageNotFound !== undefined) {
-            this.pageNotFound = this.config.pageNotFound;
+        if (config.pageNotFound !== undefined) {
+            this.pageNotFound = config.pageNotFound;
         }
-        if (this.config.languageDefault !== undefined) {
-            this.languageDefault = this.config.languageDefault;
+        if (config.languageDefault !== undefined) {
+            this.languageDefault = config.languageDefault;
+        }
+        if(config.siteRoot !== undefined){
+            this.siteRoot = config.siteRoot;
+        }
+        if(config.index !== undefined){
+            this.index = config.index;
         }
 
         //Add GoogleAnalytics
-        if (this.config.googleAnalytics !== false) {
-            this.loadGtag(this.config.googleAnalytics);
-            this.log("Load GoogleAnalytics : " + this.config.googleAnalytics);
-            this.loadgoogleAnalytics = this.config.googleAnalytics;
+        if (config.googleAnalytics !== false) {
+            this.loadGtag(config.googleAnalytics);
+            this.log("Load GoogleAnalytics : " + config.googleAnalytics);
+            this.loadgoogleAnalytics = config.googleAnalytics;
             this.googleAnalytics = this.config.googleAnalytics;
         }
     }
@@ -325,8 +332,8 @@
     }
 
     autofix() {
-        if (this.config.siteroot !== '') {
-            var siteroot = this.config.siteroot;
+        if (this.siteRoot !== '') {
+            var siteroot = this.siteRoot;
             this.domSelect('[tmpui-root]', (dom) => {
                 let autofixer = dom.getAttribute("tmpui-root");
                 let src = dom.getAttribute("src");
