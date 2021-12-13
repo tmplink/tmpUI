@@ -1,0 +1,9 @@
+{
+    "title": "tmpUI App!",
+    "preload": ["bootstrap"],
+    "body": {
+        "./tpl/page/page1.html": { "type": "html", "target": { "type": "body" } },
+        "./tpl/header.html": { "type": "html", "target": { "type": "id", "val": "tpl_header" } },
+        "./tpl/footer.html": { "type": "html", "target": { "type": "id", "val": "tpl_footer" } }
+    }
+}

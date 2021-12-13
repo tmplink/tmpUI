@@ -1,0 +1,11 @@
+{
+    "index_title":"基于 URL 的事件触发",
+    "index_page1_title":"这是第一个页面",
+    "index_page2_title":"这是第二个页面",
+    "index_action_content":"为 a 标签添加 <code> tmpui-action=\"somecode()\" </code> 属性，可以让 tmpUI 将其视为一个事件。点击该 a 标签后，tmpUI 会将 URL 更改为 a 标签中的 href 属性，并且触发设定好的代码。这可以做很多事情，比如局部刷新内容。",
+    "index_btn_goto_page1":"载入第一个页面",
+    "index_btn_goto_page2":"载入第二个页面",
+    "index_btn_return":"返回首页",
+    "index_switch_btn_cn":"切换到中文",
+    "index_switch_btn_en":"Switch to English"
+}
