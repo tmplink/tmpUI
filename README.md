@@ -37,4 +37,6 @@ https://www.vx.link 微林。
 
 # 版权
 
-tmpUI 基于 GNU General Public License v3.0 发布  
+tmpUI 基于 MIT License 发布。
+你可以自由使用在自己的项目中，也可以修改，复制及分发，不限制是否用于商业领域。
+请保留原始版权。
