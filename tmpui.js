@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 26
+ * version: 27
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-12-13
+ * Date : 2021-12-16
  */
 
  class tmpUI {
@@ -274,7 +274,7 @@
                         }
                     }
 
-                    if (atag[i].getAttribute("tmpui-action") !== undefined && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
+                    if (atag[i].getAttribute("tmpui-action") !== null && atag[i].getAttribute("tmpui-app-rebind") != 'true') {
                         //获取绝对链接地址
                         let newpage = atag[i].getAttribute("target") == '_blank' ? true : false;
                         let url = '';
