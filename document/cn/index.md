@@ -1,3 +1,5 @@
+<img src="./img/image3.jpg" />
+
 # 前言
 在过去的时代，PHP，ASP.net，Java 以及 jQuery 统治了 Web 开发的半壁江山。而现在，只剩下 PHP 和 Java。MVC 模式曾是主流，尽管时代变换，移动端崛起，但是仍然有许多思想也一直传承至今。
 
