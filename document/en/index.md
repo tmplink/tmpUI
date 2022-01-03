@@ -14,14 +14,14 @@ Not surprisingly, you'll be done in a few hours.
 * Start
   * [project structure](./struct.md)
   * [application entry](./main.md)
-  * [configuration parameters](. /params.md)
+  * [configuration parameters](./params.md)
 * Core: modularity and routing
   * [static route](./route.md)
   * [resource group](./resource.md)
     * Pre- and post-resource groups
     * Other types of files supported by the resource group
     * Startup
-    * [process resource path](./url.md)
+  * [process resource path](./url.md)
     * Convert links to application paths
     * Convert correct paths for static resources
 * Advanced
