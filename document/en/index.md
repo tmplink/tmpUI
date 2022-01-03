@@ -10,12 +10,12 @@ We have examples for each feature to get you up and running quickly.
 Not surprisingly, you'll be done in a few hours.
 
 
-# Catalog
+# Contents
 * Start
   * [project structure](./struct.md)
   * [application entry](./main.md)
   * [configuration parameters](. /params.md)
-* Core functionality: modularity and routing
+* Core: modularity and routing
   * [static route](./route.md)
   * [resource group](./resource.md)
     * Pre- and post-resource groups
@@ -24,8 +24,8 @@ Not surprisingly, you'll be done in a few hours.
     * [process resource path](./url.md)
     * Convert links to application paths
     * Convert correct paths for static resources
-* Advanced functions
-  * [Embedded templates](./temp.md)
+* Advanced
+  * [Templates](./temp.md)
     * Implementing templates
     * Generate lists
   * [Multi-language support](./i18n.md)
@@ -34,8 +34,8 @@ Not surprisingly, you'll be done in a few hours.
     * Real-time language replacement
     * Language files
     * Auto-detect language
-  * [dynamic-route](./route-dynamic.md)
-  * [dynamic-event-following-route](./route-dynamic-event.md)
+  * [Dynamic-route](./route-dynamic.md)
+  * [Dynamic-event-following-route](./route-dynamic-event.md)
   
 # Case
 
