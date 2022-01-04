@@ -1,16 +1,16 @@
 # Overview
 
-In short, `tmpUI` helps you combine scattered `html`, `js` and `css` to form a complete program.  
+In short, `tmpUI` helps you combine scattered `html`, `js` and `css` to form a complete website.  
 
 If you have developed a website based on a back-end template system (such as `PHP`) built in `MVC` mode before, then you can use `tmpUI` to build a similar website with basically no extra learning cost.
 
-Programs written based on `tmpUI` don't need to be compiled, packaged, or manage version dependencies. Minimize your mental burden. Just put it directly into the browser and run it.  
+Websites developed with using `tmpUI` don't need to be transpiled or packaged, on top of that, no dependencies need to be managed neither. Build websites with the least hassle is what we are shooting for.  
 
-We have examples for each feature to get you up and running quickly.   
-Not surprisingly, you'll be done in a few hours.
+We have examples for each feature to get you up and running quickly. Not surprisingly, you'll be done in a few hours.
 
 
 # Contents
+
 * Start
   * [project structure](./struct.md)
   * [application entry](./main.md)
@@ -28,7 +28,7 @@ Not surprisingly, you'll be done in a few hours.
   * [Templates](./temp.md)
     * Implementing templates
     * Generate lists
-  * [Multi-language support](./i18n.md)
+  * [Internationalization (i18n) support](./i18n.md)
     * Render on load
     * Rendering after loading
     * Real-time language replacement
@@ -37,16 +37,16 @@ Not surprisingly, you'll be done in a few hours.
   * [Dynamic-route](./route-dynamic.md)
   * [Dynamic-event-following-route](./route-dynamic-event.md)
   
-# Case
+# Showcases
 
 If you have built a project using tmpUI, feel free to submit an issue and we will put it on display here.  
 https://app.tmp.link A good web site to use.  
 http://bs4.vx.link Bootstrap 4 Chinese documentation.  
 https://www.vx.link Vx Link.   
 
-# Thinking
+# Developer's thoughts
 
-In the old days, `PHP`, `ASP.net`, `Java` and `jQuery` ruled half of `Web` development. Now, only `PHP` and `Java` are left. The `MVC` paradigm was once the mainstream, and despite the changing times and the rise of mobile, there are still many ideas that have been passed down to this day.
+In the old days, `PHP`, `ASP.net`, `Java` and `jQuery` ruled half of web development. Now, only `PHP` and `Java` are left. The `MVC` paradigm was once the mainstream, and despite the changing times and the rise of mobile, there are still many ideas that have been passed down to this day.
 
 From past experience, the authors believe that it is very important to not go with a certain framework (dependency) as much as possible as a basic strategy (this requires a considerable level of understanding and application of the programming language itself you are using, also known as programming fundamentals). In practice, however, it is not possible to implement every feature again by yourself (build the wheel), so there is a guideline here: the chosen wheel, which cannot limit the current functionality and cause constraints on future functionality. This is also known as low coupling.
 
