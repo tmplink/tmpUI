@@ -14,7 +14,9 @@
 ```
 https://github.com/tmplink/tmpUI.git
 ```
-在尚未熟悉 tmpUI 之前，可以直接基于本项目进行二次开发。
+在尚未熟悉 tmpUI 之前，可以直接基于本项目进行二次开发。  
+
+如果想要轻松愉快地快速开始，推荐使用 vscode + live server 插件，可以一键启动程序，无需额外配置。
 
 # 目录
 * 开始
