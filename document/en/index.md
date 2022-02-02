@@ -8,6 +8,15 @@ Websites developed with using `tmpUI` don't need to be transpiled or packaged, o
 
 We have examples for each feature to get you up and running quickly. Not surprisingly, you'll be done in a few hours.
 
+# Quick start
+This project is a demo application built on tmpUI and you can clone this project locally. Please use this git address.
+```
+https://github.com/tmplink/tmpUI.git
+```
+Before you are familiar with tmpUI, you can build directly on this project.  
+
+If you want to get started quickly and easily, we recommend using the vscode + live preview plugin to start the program with one click and no additional configuration.  
+[Live Preview (Microsoft)](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server)
 
 # Contents
 
