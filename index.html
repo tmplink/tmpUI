@@ -9,7 +9,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
     <meta name="renderer" content="webkit" />
 
-    <script type="text/javascript" src="./tmpui.checker.js"></script>
+    <script type="text/javascript">
+        'use strict';
+
+        try {
+            var f = new Function("class tmpUITest{a=0}");
+        } catch (e) {
+            window.location.href = '/version.html';
+        }
+        
+    </script>
+
     <script type="text/javascript" src="./tmpui.js"></script>
 
     <script type="text/javascript">
