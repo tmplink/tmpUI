@@ -1,4 +1,4 @@
-# Welcome
+# 欢迎 | Welcome
 
 
 * [简体中文](./document/cn/index.md)
