@@ -53,6 +53,13 @@ https://app.tmp.link A good web site to use.
 http://bs4.vx.link Bootstrap 4 Chinese documentation.  
 https://www.vx.link Vx Link.   
 
+# Our goal
+The new mission of tmpUI is to provide a phased learning experience through the development of features targeting specific needs, giving you a deeper understanding of browser-based programming. tmpUI has been designed as a very basic framework that only includes a few common features such as "page caching," "routing," and "modularity." Everything else is up to you.
+
+Therefore, when using tmpUI to build your project, you have a great deal of freedom rather than being constrained by the framework. You can have free reign to imagine, create, and innovate. For example, if you want to implement a feature like SPA, you can design your own page routing module rather than using the routing module provided by tmpUI to achieve a seamless experience.
+
+We believe that through this process, you will gain a sense of accomplishment and motivation to continue learning and creating.
+
 # Developer's thoughts
 
 In the old days, `PHP`, `ASP.net`, `Java` and `jQuery` ruled half of web development. Now, only `PHP` and `Java` are left. The `MVC` paradigm was once the mainstream, and despite the changing times and the rise of mobile, there are still many ideas that have been passed down to this day.
