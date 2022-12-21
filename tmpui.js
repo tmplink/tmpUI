@@ -1,11 +1,11 @@
 /**
  * tmpUI.js
- * version: 27
+ * version: 28
  * Github : https://github.com/tmplink/tmpUI
- * Date : 2021-12-16
+ * Date :2022-12-21
  */
 
- class tmpUI {
+class tmpUI {
 
     status = {}
     config = {}
@@ -232,6 +232,21 @@
 
     linkRebind() {
         let atag = document.getElementsByTagName("a");
+        this.linkRebindForAPP(atag);
+        let ctag = document.getElementsByTagName("code");
+        this.linkRebindForCode(ctag);
+    }
+
+    linkRebindWith(tagName,type){
+        let atag = document.getElementsByTagName(tagName);
+        if(type == 'code'){
+            this.linkRebindForCode(atag);
+        }else{
+            this.linkRebindForAPP(atag);
+        }
+    }
+
+    linkRebindForAPP(atag){
         if (atag.length > 0) {
             for (let i in atag) {
 
@@ -313,7 +328,8 @@
                 }
             }
         }
-        let ctag = document.getElementsByTagName("code");
+    }
+    linkRebindForCode(ctag){
         if (ctag.length > 0) {
             for (let i in ctag) {
                 if (typeof (ctag[i]) === 'object') {
@@ -328,7 +344,6 @@
                 }
             }
         }
-        return 'ok';
     }
 
     autofix() {
@@ -360,6 +375,13 @@
             newPage: url
         }, null, url);
         this.route();
+    }
+
+    dynOpen(a_url) {
+        let url = this.index + '?tmpui_page=' + a_url;
+        history.pushState({
+            newPage: url
+        }, null, url);
     }
 
     /**
