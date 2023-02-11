@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 32
+ * version: 33
  * Github : https://github.com/tmplink/tmpUI
- * Date :2023-01-04
+ * Date :2023-02-11
  */
 
 class tmpUI {
@@ -533,7 +533,15 @@ class tmpUI {
             let contentType = this.config.path[url].res[i].type;
             let content = this.config.path[url].res[i].dom;
             let contentReload = this.config.path[url].res[i].reload;
+            let contentVersion = this.config.path[url].res[i].version===false?false:true;
             let contentReloadTarget = contentReload === false ? 'tmpUIRes_once' : 'tmpUIRes';
+            let contentURL = '';
+            
+            if(contentVersion===true){
+                contentURL = i + '?v=' + this.config.version;
+            }else{
+                contentURL = i;
+            }
 
             if (contentType === 'css' && contentType === type) {
                 if (contentReload === false) {
@@ -544,7 +552,7 @@ class tmpUI {
                     }
                 }
                 this.htmlAppend('head', `<!--[${i}]-->`);
-                this.htmlAppend('head', `<link class="${contentReloadTarget}" rel="stylesheet" href="${i}?v=${this.config.version}">`);
+                this.htmlAppend('head', `<link class="${contentReloadTarget}" rel="stylesheet" href="${contentURL}">`);
             }
 
             if (contentType === 'js' && contentType === type) {
@@ -649,7 +657,12 @@ class tmpUI {
             xhttp.onabort = () => {
                 this.logError("can't load [abort]" + i);
             }
-            xhttp.open("GET", this.resPath + i + '?v=' + this.version, true);
+            //如果配置了 version:false，就不加版本号
+            if (this.config.path[target].res[i].version === false) {
+                xhttp.open("GET", this.resPath + i, true);
+            }else{
+                xhttp.open("GET", this.resPath + i + '?v=' + this.version, true);
+            }
             xhttp.send();
         }
     }
@@ -705,11 +718,13 @@ class tmpUI {
     }
 
     async languageBuild() {
+        var langs = navigator.language.toLowerCase();
+        //设置 html lang 属性
+        document.getElementsByTagName('html')[0].setAttribute('lang', langs);
         //init language
         var lang = localStorage.getItem('tmpUI_language');
         if (lang === null) {
             this.log("language auto detect : " + lang);
-            var langs = navigator.language.toLowerCase();
             switch (langs) {
                 case 'zh-cn':
                     this.languageSetting = 'cn';
