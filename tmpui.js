@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 33
+ * version: 36
  * Github : https://github.com/tmplink/tmpUI
- * Date :2023-02-11
+ * Date :2023-02-23
  */
 
 class tmpUI {
@@ -22,6 +22,7 @@ class tmpUI {
     googleAnalyticsQueue = []
 
     customRouter = []
+    errorOnloading = true
     dynamicRouter = null
     languageDefault = 'en'
     languageConfig = false
@@ -103,7 +104,7 @@ class tmpUI {
     }
 
     cssInit() {
-        this.htmlAppend('head', '<style>body::-webkit-scrollbar{width:0!important}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:200px;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</div>');
+        this.htmlAppend('head', '<style>body::-webkit-scrollbar{width:0!important}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</div>');
     }
 
     onExit(cb) {
@@ -209,6 +210,9 @@ class tmpUI {
         }
         if (config.index !== undefined) {
             this.index = config.index;
+        }
+        if (config.errorOnloading !== undefined) {
+            this.errorOnloading = config.errorOnloading;
         }
 
         //Add GoogleAnalytics
@@ -641,7 +645,7 @@ class tmpUI {
             let xhttp = new XMLHttpRequest();
             xhttp.onloadend = () => {
                 if (xhttp.status != '200' && xhttp.status != '302') {
-                    this.logError("can't load [http code " + xhttp.status + ']' + i);
+                    this.logError("[code " + xhttp.status + '] ' + i);
                 }
                 window.tmpuiHelper.loadQueue++;
                 this.config.path[target].res[i].state = 1;
@@ -649,13 +653,25 @@ class tmpUI {
                 this.loaderFinish();
             };
             xhttp.ontimeout = () => {
-                this.logError("can't load [timeout]" + i);
+                this.logError("[timeout] " + i);
+                //重试
+                setTimeout(() => {
+                    this.loaderUnit(target, i);
+                }, 1000);
             }
             xhttp.onerror = () => {
-                this.logError("can't load [error]" + i);
+                this.logError("[error] " + i);
+                //重试
+                setTimeout(() => {
+                    this.loaderUnit(target, i);
+                }, 1000);
             }
             xhttp.onabort = () => {
-                this.logError("can't load [abort]" + i);
+                this.logError("[abort] " + i);
+                //重试
+                setTimeout(() => {
+                    this.loaderUnit(target, i);
+                }, 1000);
             }
             //如果配置了 version:false，就不加版本号
             if (this.config.path[target].res[i].version === false) {
@@ -831,12 +847,13 @@ class tmpUI {
 
             this.htmlAppend('#tmpui', '<div id="tmpui_loading_bg" style="background-color: rgba(255, 255, 255);"></div>');
             this.htmlAppend('#tmpui_loading_bg', '<div id="tmpui_loading_show"></div>');
-            this.htmlAppend('#tmpui_loading_show', '<div style="text-align:center;margin-bottom:20px;" id="tmpui_loading_content"></div>');
+            this.htmlAppend('#tmpui_loading_show', '<div style="text-align:center;margin-bottom:30px;" id="tmpui_loading_content"></div>');
 
             if (this.loadingIcon !== false) {
-                this.htmlAppend('#tmpui_loading_content', '<img src="' + this.loadingIcon + '" style="vertical-align: middle;border-style: none;width:129px;height:129px;"/>');
-            } else {
-                this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-family: fa5-proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;">' + this.loadingText + '</div>');
+                this.htmlAppend('#tmpui_loading_content', '<img src="' + this.loadingIcon + '" style="vertical-align: middle;border-style: none;width:129px;height:129px;margin-bottom: 10px;"/>');
+            } 
+            if (this.loadingText !== false) {
+                this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-size: 38px;font-family: fa5-proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;">' + this.loadingText + '</div>');
             }
 
             this.loadingPageInit = true;
@@ -945,6 +962,9 @@ class tmpUI {
     }
 
     logError(msg) {
+        if(this.errorOnloading){
+            this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-family: fa5-proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;">' + msg + '</div>');
+        }
         console.error("tmpUI::Error -> " + msg);
     }
 }
