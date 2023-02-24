@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 36
+ * version: 37
  * Github : https://github.com/tmplink/tmpUI
- * Date :2023-02-23
+ * Date :2023-02-24
  */
 
 class tmpUI {
@@ -34,7 +34,7 @@ class tmpUI {
     loadingPageInit = false
     loadingPage = false
     loadingIcon = false
-    loadingText = 'Loading...'
+    loadingText = false
     readyCallback = null
     progressEnable = true
     progressStatus = false
@@ -847,13 +847,13 @@ class tmpUI {
 
             this.htmlAppend('#tmpui', '<div id="tmpui_loading_bg" style="background-color: rgba(255, 255, 255);"></div>');
             this.htmlAppend('#tmpui_loading_bg', '<div id="tmpui_loading_show"></div>');
-            this.htmlAppend('#tmpui_loading_show', '<div style="text-align:center;margin-bottom:30px;" id="tmpui_loading_content"></div>');
+            this.htmlAppend('#tmpui_loading_show', '<div style="text-align:center;margin-bottom:10px;" id="tmpui_loading_content"></div>');
 
             if (this.loadingIcon !== false) {
                 this.htmlAppend('#tmpui_loading_content', '<img src="' + this.loadingIcon + '" style="vertical-align: middle;border-style: none;width:129px;height:129px;margin-bottom: 10px;"/>');
             } 
             if (this.loadingText !== false) {
-                this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-size: 38px;font-family: fa5-proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;">' + this.loadingText + '</div>');
+                this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-size: 38px;font-family: Helvetica,Arial,sans-serif !important;">' + this.loadingText + '</div>');
             }
 
             this.loadingPageInit = true;
@@ -963,7 +963,7 @@ class tmpUI {
 
     logError(msg) {
         if(this.errorOnloading){
-            this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-family: fa5-proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;">' + msg + '</div>');
+            this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-family: Helvetica,Arial,sans-serif !important;">' + msg + '</div>');
         }
         console.error("tmpUI::Error -> " + msg);
     }
