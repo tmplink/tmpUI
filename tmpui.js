@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 37
+ * version: 38
  * Github : https://github.com/tmplink/tmpUI
- * Date :2023-02-24
+ * Date :2023-02-28
  */
 
 class tmpUI {
@@ -76,7 +76,7 @@ class tmpUI {
         window.addEventListener("popstate", (e) => {
             // 获取当前 URL 中的 tmpui_page 参数
             let tmpuiPage = new URL(window.location.href).searchParams.get("tmpui_page");
-            let currentPath = window.location.pathname+window.location.search;
+            let currentPath = window.location.pathname + window.location.search;
             // 如果 tmpuiPage 值与现在的 tmpuiPage 值相同
             if (tmpuiPage === this.currentPage) {
                 if (typeof this.customRouter[tmpuiPage] === "function") {
@@ -137,12 +137,14 @@ class tmpUI {
             this.readyFunction = [];
         }
         //add GoogleAnalytics
-        this.log('Send GoogleAnalytics : ' + document.title);
-        gtag('event', 'page_view', {
-            page_title: document.title,
-            page_path: this.currentRoute,
-            send_to: this.googleAnalytics
-        });
+        if (this.googleAnalytics !== false) {
+            this.log('Send GoogleAnalytics : ' + document.title);
+            gtag('event', 'page_view', {
+                page_title: document.title,
+                page_path: this.currentRoute,
+                send_to: this.googleAnalytics
+            });
+        }
     }
 
     readyEvent() {
@@ -417,7 +419,7 @@ class tmpUI {
             history.pushState({
                 Page: 1
             }, window.title, url);
-        }   
+        }
     }
 
     /**
@@ -537,13 +539,13 @@ class tmpUI {
             let contentType = this.config.path[url].res[i].type;
             let content = this.config.path[url].res[i].dom;
             let contentReload = this.config.path[url].res[i].reload;
-            let contentVersion = this.config.path[url].res[i].version===false?false:true;
+            let contentVersion = this.config.path[url].res[i].version === false ? false : true;
             let contentReloadTarget = contentReload === false ? 'tmpUIRes_once' : 'tmpUIRes';
             let contentURL = '';
-            
-            if(contentVersion===true){
+
+            if (contentVersion === true) {
                 contentURL = i + '?v=' + this.config.version;
-            }else{
+            } else {
                 contentURL = i;
             }
 
@@ -676,7 +678,7 @@ class tmpUI {
             //如果配置了 version:false，就不加版本号
             if (this.config.path[target].res[i].version === false) {
                 xhttp.open("GET", this.resPath + i, true);
-            }else{
+            } else {
                 xhttp.open("GET", this.resPath + i + '?v=' + this.version, true);
             }
             xhttp.send();
@@ -851,7 +853,7 @@ class tmpUI {
 
             if (this.loadingIcon !== false) {
                 this.htmlAppend('#tmpui_loading_content', '<img src="' + this.loadingIcon + '" style="vertical-align: middle;border-style: none;width:129px;height:129px;margin-bottom: 10px;"/>');
-            } 
+            }
             if (this.loadingText !== false) {
                 this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-size: 38px;font-family: Helvetica,Arial,sans-serif !important;">' + this.loadingText + '</div>');
             }
@@ -962,7 +964,7 @@ class tmpUI {
     }
 
     logError(msg) {
-        if(this.errorOnloading){
+        if (this.errorOnloading) {
             this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-family: Helvetica,Arial,sans-serif !important;">' + msg + '</div>');
         }
         console.error("tmpUI::Error -> " + msg);
