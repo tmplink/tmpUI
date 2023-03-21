@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 38
+ * version: 39
  * Github : https://github.com/tmplink/tmpUI
- * Date :2023-02-28
+ * Date :2023-03-21
  */
 
 class tmpUI {
@@ -48,6 +48,7 @@ class tmpUI {
         this.state = {
             displayTrophy: true
         };
+
         window.tmpuiHelper = {
             loadQueue: 0,
             loadTotal: 0,
@@ -62,14 +63,12 @@ class tmpUI {
         this.config = this.rebuildConfig(config);
         this.rebuildRunConfig(config);
 
-        //初始化当前页面的路由
-        //this.route(window.location.pathname);
-
         //初始化CSS
         this.cssInit();
 
         //Checking
         window.onload = () => {
+            this.loadPageInit();
             this.route();
         }
         //当面前进与后退的时候，popstate监听历史记录变化，触发对应页面的ajax请求。
@@ -691,16 +690,22 @@ class tmpUI {
             //show progress bar
             this.progressStatus = true;
             this.htmlAppend('#tmpui_loading_show', '<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
+            //add css
+            this.htmlAppend('head', '<style>.tmpui_curRate{transition:width 0.5s;}</style>');
         }
 
-        //this.log("Queue:" + window.tmpuiHelper.loadTotal + "|Finish:" + window.tmpuiHelper.loadQueue);
         let percent = Math.ceil(window.tmpuiHelper.loadQueue / window.tmpuiHelper.loadTotal * 100);
+
+        if (percent !== 100) {
+            document.getElementById('tmpui_loading_progress').style.opacity = "1";
+        }
+
         this.domSelect('.tmpui_curRate', (el) => {
             el.style.width = `${percent}%`;
             if (percent === 100) {
                 document.body.style.overflow = "";
-                document.getElementById('tmpui_loading_progress').style.display = "none";
-                //document.getElementById('tmpui').style.display = "none";
+                //透明度隐藏
+                document.getElementById('tmpui_loading_progress').style.opacity = "0";
             }
         });
 
@@ -838,28 +843,69 @@ class tmpUI {
         $('meta[name=description]').attr('content', des);
     }
 
-    loadpage(status) {
-
-        if (!this.loadingPage) {
-            this.log('Loading page exit.');
-            return false;
-        }
+    loadPageInit() {
+        //预置的SVG加载图标
+        let preloadingIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; display: block;" width="129" height="129" viewBox="0 0 100 100" preserveAspectRatio="xMinYMin meet">
+        <rect x="17.5" y="30" width="15" height="40" fill="#93dbe9">
+          <animate attributeName="y" repeatCount="indefinite" dur="1s" calcMode="spline" keyTimes="0;0.5;1" values="18;30;30" keySplines="0 0.5 0.5 1;0 0.5 0.5 1" begin="-0.2s"></animate>
+          <animate attributeName="height" repeatCount="indefinite" dur="1s" calcMode="spline" keyTimes="0;0.5;1" values="64;40;40" keySplines="0 0.5 0.5 1;0 0.5 0.5 1" begin="-0.2s"></animate>
+        </rect>
+        <rect x="42.5" y="30" width="15" height="40" fill="#689cc5">
+          <animate attributeName="y" repeatCount="indefinite" dur="1s" calcMode="spline" keyTimes="0;0.5;1" values="20.999999999999996;30;30" keySplines="0 0.5 0.5 1;0 0.5 0.5 1" begin="-0.1s"></animate>
+          <animate attributeName="height" repeatCount="indefinite" dur="1s" calcMode="spline" keyTimes="0;0.5;1" values="58.00000000000001;40;40" keySplines="0 0.5 0.5 1;0 0.5 0.5 1" begin="-0.1s"></animate>
+        </rect>
+        <rect x="67.5" y="30" width="15" height="40" fill="#5e6fa3">
+          <animate attributeName="y" repeatCount="indefinite" dur="1s" calcMode="spline" keyTimes="0;0.5;1" values="20.999999999999996;30;30" keySplines="0 0.5 0.5 1;0 0.5 0.5 1"></animate>
+          <animate attributeName="height" repeatCount="indefinite" dur="1s" calcMode="spline" keyTimes="0;0.5;1" values="58.00000000000001;40;40" keySplines="0 0.5 0.5 1;0 0.5 0.5 1"></animate>
+        </rect>
+        </svg>
+        `;
 
         if (!this.loadingPageInit) {
 
             this.htmlAppend('#tmpui', '<div id="tmpui_loading_bg" style="background-color: rgba(255, 255, 255);"></div>');
             this.htmlAppend('#tmpui_loading_bg', '<div id="tmpui_loading_show"></div>');
             this.htmlAppend('#tmpui_loading_show', '<div style="text-align:center;margin-bottom:10px;" id="tmpui_loading_content"></div>');
+            this.htmlAppend('#tmpui_loading_content', '<div id="tmpui_loading_icon"></div>');
 
             if (this.loadingIcon !== false) {
-                this.htmlAppend('#tmpui_loading_content', '<img src="' + this.loadingIcon + '" style="vertical-align: middle;border-style: none;width:129px;height:129px;margin-bottom: 10px;"/>');
+                document.querySelector('#tmpui_loading_icon').innerHTML = preloadingIcon;
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', this.loadingIcon, true);
+                xhr.responseType = 'blob';
+                xhr.addEventListener('load', (e) => {
+                    if (xhr.status === 200) {
+                        const contentType = xhr.getResponseHeader('Content-Type');
+                        let reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64data = reader.result.split(',')[1]; // 将 base64 头部信息去掉
+                            document.querySelector('#tmpui_loading_icon').innerHTML = '<img src="data:' + contentType + ';base64,' + base64data + '" style="vertical-align: middle;border-style: none;width:129px;height:129px;"/>';
+                            console.log('Loading ICON::ok');
+                        };
+                        reader.readAsDataURL(xhr.response);
+                    } else {
+                        console.error('Failed to load ICON.');
+                    }
+                });
+                xhr.send();
+
             }
+
             if (this.loadingText !== false) {
-                this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-size: 38px;font-family: Helvetica,Arial,sans-serif !important;">' + this.loadingText + '</div>');
+                this.htmlAppend('#tmpui_loading_content', '<div style="text-align:center;font-size: 38px;line-height: 1.5;font-family: Arial,sans-serif !important;">' + this.loadingText + '</div>');
             }
 
             this.loadingPageInit = true;
             this.log('Loading page created.');
+        }
+    }
+
+    loadpage(status) {
+
+        if (!this.loadingPage) {
+            this.log('Loading page exit.');
+            return false;
         }
 
         if (status == true) {
