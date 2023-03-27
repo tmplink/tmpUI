@@ -58,6 +58,7 @@ https://github.com/tmplink/tmpUI.git
 https://app.tmp.link 一个好用的网盘。  
 http://bs4.vx.link Bootstrap 4 中文文档。  
 https://www.vx.link 微林。 
+https://www.vnet.one 零维。
 
 # 目标
 
