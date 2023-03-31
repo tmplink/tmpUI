@@ -5,20 +5,28 @@ I'm sure it will be easier than you can imagine.
 tmpUI can help you implement include and require in PHP (or similar backend languages) in template mode.  
 Just use the common project structure we used to have. For example, a structure like this.
 
-* ./tmpui.js
-* ./tmpui.checker.js
-* ./index.html
-* ./favicon.ico
-
-* ./tpl/*.html
-* ./lang/*.json
-
-* ./assets/*.css
-* ./assets/*.js
-
-* ./plugin/*/*.js
-* ./plugin/*/*.css
-* ./plugin/*/*.html
+```
+.
+├── index.html
+├── favicon.ico
+├── tmpui.checker.js
+├── tmpui.js
+├── assets
+│   ├── *.css
+│   └── *.js
+├── lang
+|   ├── cn.json
+|   └── en.json
+└── plugin
+    ├── *
+    │   ├── *.css
+    │   ├── *.html
+    │   └── *.js
+    └── *
+        ├── *.css
+        ├── *.html
+        └── *.js
+```
 
 ## Wrap-up
 

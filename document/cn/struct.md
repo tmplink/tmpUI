@@ -5,20 +5,28 @@
 tmpUI 可以帮助你实现 PHP （或者类似其它后端语言）中模板模式中的 include 和 require。  
 运用我们曾经的常用的项目结构即可。比如这样的结构：
 
-* ./tmpui.js
-* ./tmpui.checker.js
-* ./index.html
-* ./favicon.ico
-
-* ./tpl/*.html
-* ./lang/*.json
-
-* ./assets/*.css
-* ./assets/*.js
-
-* ./plugin/*/*.js
-* ./plugin/*/*.css
-* ./plugin/*/*.html
+```
+.
+├── index.html
+├── favicon.ico
+├── tmpui.checker.js
+├── tmpui.js
+├── assets
+│   ├── *.css
+│   └── *.js
+├── lang
+|   ├── cn.json
+|   └── en.json
+└── plugin
+    ├── *
+    │   ├── *.css
+    │   ├── *.html
+    │   └── *.js
+    └── *
+        ├── *.css
+        ├── *.html
+        └── *.js
+```
 
 ## 总结
 

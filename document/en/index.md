@@ -8,12 +8,6 @@ Websites developed with using `tmpUI` don't need to be transpiled or packaged, o
 
 We have examples for each feature to get you up and running quickly. Not surprisingly, you'll be done in a few hours.
 
-## Update notes for version 32
-* Optimized page loading.
-* Optimization.
-
-[Details](./changes/version32.md)
-
 # Quick start
 This project is a demo application built on tmpUI and you can clone this project locally. Please use this git address.
 ```
