@@ -16,3 +16,4 @@ These parameters are application configuration parameters.
 | lang | null | Language file configuration, only when this parameter is configured, the language related functions will take effect |
 | preload | null | preload resource group | 
 | append | null | post-groups |
+| extendStaticHost | null | Additional static resource host. This configuration is used to specify an additional resource group loading host. For example, setting it to static.abc.com, when the site domain is www.abc.com, it will first load index.html from www.abc.com, and then the extendStaticHost configured in index.html will make all subsequent resources loaded through static.abc.com. You can specify a protocol, such as setting it to http://static.abc.com, but due to security restrictions, you cannot reference http resources in an https site |
