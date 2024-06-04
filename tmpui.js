@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 50
+ * version: 51
  * Github : https://github.com/tmplink/tmpUI
- * Date :2024-05-07
+ * Date :2024-06-05
  */
 
 class tmpUI {
@@ -44,6 +44,9 @@ class tmpUI {
     filesCache = []
     statusLastPage = ''
     extendStaticHost = ''
+    bg_color = '#fff'
+    bg_color_dark = '#000'
+    bg_color_light = '#fff'
 
     constructor(config) {
         this.state = {
@@ -63,6 +66,13 @@ class tmpUI {
         //写入配置文件
         this.config = this.rebuildConfig(config);
         this.rebuildRunConfig(config);
+
+        //检查是否是深色模式，如果是的话，背景颜色设定为黑色
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            this.bg_color = this.bg_color_dark;
+        }else{
+            this.bg_color = this.bg_color_light;
+        }
 
         //初始化CSS
         this.cssInit();
@@ -104,7 +114,7 @@ class tmpUI {
     }
 
     cssInit() {
-        this.htmlAppend('head', '<style>body::-webkit-scrollbar{width:0!important}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</div>');
+        this.htmlAppend('head', `<style>body::-webkit-scrollbar{width:0!important}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:${this.bg_color};z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</div>`);
     }
 
     onExit(cb) {
@@ -218,6 +228,13 @@ class tmpUI {
         }
         if (config.extendStaticHost !== undefined) {
             this.extendStaticHost = config.extendStaticHost;
+        }
+
+        if(config.bg_color !== undefined){
+            this.bg_color = config.bg_color;
+        }
+        if(config.bg_color_dark !== undefined){
+            this.bg_color_dark = config.bg_color_dark;
         }
 
         //Add GoogleAnalytics
@@ -866,7 +883,7 @@ class tmpUI {
 
         if (!this.loadingPageInit) {
 
-            this.htmlAppend('#tmpui', '<div id="tmpui_loading_bg" style="background-color: rgba(255, 255, 255);"></div>');
+            this.htmlAppend('#tmpui', `<div id="tmpui_loading_bg" style="background-color: ${this.bg_color};"></div>`);
             this.htmlAppend('#tmpui_loading_bg', '<div id="tmpui_loading_show"></div>');
             this.htmlAppend('#tmpui_loading_show', '<div style="text-align:center;margin-bottom:10px;" id="tmpui_loading_content"></div>');
             this.htmlAppend('#tmpui_loading_content', '<div id="tmpui_loading_icon"></div>');

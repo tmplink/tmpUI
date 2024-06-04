@@ -14,6 +14,8 @@
 | index | null | 应用程序入口，默认为 index.html | 
 | path | null | 静态路由配置参数 |
 | lang | null | 语言文件配置，只有配置了此参数时，语言相关的功能才能生效 |
+| bg_color_light | null | 白天背景颜色 |
+| bg_color_dark | null | 夜晚背景颜色 |
 | preload | null | 前置资源组 | 
 | append | null | 后置资源组 |
 | extendStaticHost | null | 额外静态资源主机，此配置用于指定额外的资源组加载主机，比如设置为 static.abc.com ，站点域名是 www.abc.com 时，会先从 www.abc.com 加载 index.html，然后 index.html 中配置的 extendStaticHost 会使得之后所有的资源都通过 static.abc.com 来加载。可以指定协议，比如设置为 http://static.abc.com，但是由于安全限制，你不能在 https 站点中，引用 http 资源 |
