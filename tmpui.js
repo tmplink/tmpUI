@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 51
+ * version: 52
  * Github : https://github.com/tmplink/tmpUI
- * Date :2024-06-05
+ * Date :2024-08-29
  */
 
 class tmpUI {
@@ -761,55 +761,34 @@ class tmpUI {
 
     async languageBuild() {
         var langs = navigator.language.toLowerCase();
-        //设置 html lang 属性
-        document.getElementsByTagName('html')[0].setAttribute('lang', langs);
         //init language
         var lang = localStorage.getItem('tmpUI_language');
         if (lang === null) {
             this.log("language auto detect : " + lang);
-            switch (langs) {
-                case 'zh-cn':
-                    this.languageSetting = 'cn';
-                    break;
-                case 'zh-tw':
-                    this.languageSetting = 'hk';
-                    break;
-                case 'zh-sg':
-                    this.languageSetting = 'cn';
-                    break;
-                case 'zh-hk':
-                    this.languageSetting = 'hk';
-                    break;
-                case 'ja-jp':
-                    this.languageSetting = 'jp';
-                    break;
-                case 'ko-kr':
-                    this.languageSetting = 'kr';
-                    break;
-                case 'ru-mi':
-                    this.languageSetting = 'ru';
-                    break;
-                case 'ms':
-                    this.languageSetting = 'ms';
-                    break;
-                case 'de':
-                    this.languageSetting = 'de';
-                    break;
-                case 'fr':
-                    this.languageSetting = 'fr';
-                    break;
-                case 'en-us':
-                    this.languageSetting = 'en';
-                    break;
-                default:
-
-                    this.languageSetting = this.languageDefault;
-                    break;
-            }
+            const langMap = {
+                'zh-cn': 'cn',
+                'zh-tw': 'hk',
+                'zh-sg': 'cn',
+                'zh-hk': 'hk',
+                'ja-jp': 'jp',
+                'jp': 'jp',
+                'ja': 'jp',
+                'ko-kr': 'kr',
+                'ru-mi': 'ru',
+                'ms': 'ms',
+                'de': 'de',
+                'fr': 'fr',
+                'en-us': 'en',
+                'en': 'en'
+            };
+            this.languageSetting = langMap[langs] || this.languageDefault;
             localStorage.setItem('tmpUI_language', this.languageSetting);
         } else {
             this.languageSetting = lang;
         }
+
+        //根据选定的语言设置网页的语言
+        this.languageSetHead(this.languageSetting);
 
         //如果设定的语言不存在与配置文件中，则给定一个默认的语言配置
         if (this.languageConfig[this.languageSetting] === undefined) {
@@ -856,6 +835,27 @@ class tmpUI {
                 }
             }
         });
+    }
+
+    languageSetHead(langs){
+        const langMap = {
+            'zh-cn': 'zh-cn',
+            'zh-tw': 'zh-hk',
+            'zh-sg': 'zh-cn',
+            'zh-hk': 'zh-hk',
+            'ja-jp': 'ja',
+            'jp': 'ja',
+            'ja': 'ja',
+            'ko-kr': 'ko',
+            'ru-mi': 'ru',
+            'ms': 'ms',
+            'de': 'de',
+            'fr': 'fr',
+            'en-us': 'en',
+            'en': 'en'
+        };
+        const lang = langMap[langs] || 'en';
+        document.getElementsByTagName('html')[0].setAttribute('lang', lang);
     }
 
     description(des) {
