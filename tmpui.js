@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 52
+ * version: 53
  * Github : https://github.com/tmplink/tmpUI
- * Date :2024-08-29
+ * Date :2025-01-19
  */
 
 class tmpUI {
@@ -704,38 +704,48 @@ class tmpUI {
     }
 
     loaderFinish() {
-        //checking progressEnable
+        // 检查是否启用进度条
         if (this.progressEnable && this.progressStatus === false) {
-            //show progress bar
+            // 显示进度条
             this.progressStatus = true;
             this.htmlAppend('#tmpui_loading_show', '<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
-            //add css
+            // 添加 CSS
             this.htmlAppend('head', '<style>.tmpui_curRate{transition:width 0.5s;}</style>');
         }
-
+    
         let percent = Math.ceil(window.tmpuiHelper.loadQueue / window.tmpuiHelper.loadTotal * 100);
-
+    
         if (percent !== 100) {
             document.getElementById('tmpui_loading_progress').style.opacity = "1";
         }
-
+    
+        // 更新进度条宽度
         this.domSelect('.tmpui_curRate', (el) => {
             el.style.width = `${percent}%`;
-            if (percent === 100) {
-                document.body.style.overflow = "";
-                //透明度隐藏
-                document.getElementById('tmpui_loading_progress').style.opacity = "0";
-            }
         });
-
+    
+        // 所有资源加载完成
         if (window.tmpuiHelper.loadQueue == window.tmpuiHelper.loadTotal) {
             this.log("Loading is complete.");
-            if (typeof this.loadCallback === 'function') {
-                this.log("Callback is running.");
-                this.loadCallback();
-            }
-            this.loadCallback = null;
-            this.progressStatus = true;
+            
+            // 等待进度条动画完成后再隐藏加载界面
+            setTimeout(() => {
+                // 设置进度条透明
+                document.getElementById('tmpui_loading_progress').style.opacity = "0";
+                
+                // 等待透明度过渡完成后再恢复页面滚动和执行回调
+                setTimeout(() => {
+                    document.body.style.overflow = "";
+                    
+                    if (typeof this.loadCallback === 'function') {
+                        this.log("Callback is running.");
+                        this.loadCallback();
+                    }
+                    this.loadCallback = null;
+                    this.progressStatus = true;
+                }, 300); // 给予足够的时间完成透明度过渡
+                
+            }, 600); // 确保进度条动画完全完成（width transition 是 0.5s）
         }
     }
 
