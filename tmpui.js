@@ -1,6 +1,6 @@
 /**
  * tmpUI.js
- * version: 53
+ * version: 55
  * Github : https://github.com/tmplink/tmpUI
  * Date :2025-01-19
  */
@@ -70,7 +70,7 @@ class tmpUI {
         //检查是否是深色模式，如果是的话，背景颜色设定为黑色
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             this.bg_color = this.bg_color_dark;
-        }else{
+        } else {
             this.bg_color = this.bg_color_light;
         }
 
@@ -230,10 +230,10 @@ class tmpUI {
             this.extendStaticHost = config.extendStaticHost;
         }
 
-        if(config.bg_color !== undefined){
+        if (config.bg_color !== undefined) {
             this.bg_color = config.bg_color;
         }
-        if(config.bg_color_dark !== undefined){
+        if (config.bg_color_dark !== undefined) {
             this.bg_color_dark = config.bg_color_dark;
         }
 
@@ -712,31 +712,31 @@ class tmpUI {
             // 添加 CSS
             this.htmlAppend('head', '<style>.tmpui_curRate{transition:width 0.5s;}</style>');
         }
-    
+
         let percent = Math.ceil(window.tmpuiHelper.loadQueue / window.tmpuiHelper.loadTotal * 100);
-    
+
         if (percent !== 100) {
             document.getElementById('tmpui_loading_progress').style.opacity = "1";
         }
-    
+
         // 更新进度条宽度
         this.domSelect('.tmpui_curRate', (el) => {
             el.style.width = `${percent}%`;
         });
-    
+
         // 所有资源加载完成
         if (window.tmpuiHelper.loadQueue == window.tmpuiHelper.loadTotal) {
             this.log("Loading is complete.");
-            
+
             // 等待进度条动画完成后再隐藏加载界面
             setTimeout(() => {
                 // 设置进度条透明
                 document.getElementById('tmpui_loading_progress').style.opacity = "0";
-                
+
                 // 等待透明度过渡完成后再恢复页面滚动和执行回调
                 setTimeout(() => {
                     document.body.style.overflow = "";
-                    
+
                     if (typeof this.loadCallback === 'function') {
                         this.log("Callback is running.");
                         this.loadCallback();
@@ -744,7 +744,7 @@ class tmpUI {
                     this.loadCallback = null;
                     this.progressStatus = true;
                 }, 300); // 给予足够的时间完成透明度过渡
-                
+
             }, 600); // 确保进度条动画完全完成（width transition 是 0.5s）
         }
     }
@@ -847,7 +847,7 @@ class tmpUI {
         });
     }
 
-    languageSetHead(langs){
+    languageSetHead(langs) {
         const langMap = {
             'zh-cn': 'zh-cn',
             'zh-tw': 'zh-hk',
@@ -957,36 +957,63 @@ class tmpUI {
     }
 
     tpl(id, data) {
-        let html = $('#' + id).html();
-        let return_html = this.templateEngine(html, data);
-        return return_html;
-    }
-
-    templateEngine(html, options) {
-        if (html == '' || html == null) {
-            console.error('templateEngine::Html can\'t be null.');
+        const element = document.getElementById(id);
+        if (!element) {
+            console.error('templateEngine::Element not found with id: ' + id);
             return '';
         }
-        var re = /<%(.+?)%>/g,
-            reExp = /(^( )?(var|if|for|else|switch|case|break|{|}|;))(.*)?/g,
-            code = 'with(obj) { var r=[];\n',
-            cursor = 0,
-            result,
-            match;
-        var add = function (line, js) {
-            js ? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
-                (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
-            return add;
+        
+        const html = element.innerHTML;
+        if (!html) {
+            console.error('templateEngine::Template content is empty');
+            return '';
         }
-        while (match = re.exec(html)) {
-            add(html.slice(cursor, match.index))(match[1], true);
-            cursor = match.index + match[0].length;
+    
+        try {
+            var re = /<%(.+?)%>/g,
+                reExp = /(^( )?(var|if|for|else|switch|case|break|{|}|;))(.*)?/g,
+                code = 'try { with(obj) { var r=[];\n',
+                cursor = 0,
+                match;
+    
+            var add = function(line, js) {
+                js ? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
+                    (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
+                return add;
+            }
+    
+            while (match = re.exec(html)) {
+                add(html.slice(cursor, match.index))(match[1], true);
+                cursor = match.index + match[0].length;
+            }
+            add(html.substr(cursor, html.length - cursor));
+    
+            code = (code + 'return r.join(""); }} catch(e) { throw e; }').replace(/[\r\t\n]/g, '');
+            
+            let result = new Function('obj', code).apply(data, [data]);
+            return result;
+            
+        } catch (e) {
+            let errorMessage = `
+                <div class="template-error" style="
+                    color: #721c24;
+                    background-color: #f8d7da;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 4px;
+                    padding: 15px;
+                    margin: 10px 0;
+                    font-family: monospace;">
+                    <h3 style="margin-top: 0;">🚫 tmpUI Error</h3>
+                    <div style="margin: 10px 0;">
+                        <strong>ID:</strong> #${id}<br>
+                        <strong>Type:</strong> ${e.name}<br>
+                        <strong>Message:</strong> ${e.message}<br>
+                    </div>
+                </div>`;
+    
+            console.error('Template Error in element #' + id + ':\n', e);
+            return errorMessage;
         }
-        add(html.substr(cursor, html.length - cursor));
-        code = (code + 'return r.join(""); }').replace(/[\r\t\n]/g, ' ');
-        try { result = new Function('obj', code).apply(options, [options]); }
-        catch (err) { console.error("'" + err.message + "'", " in \n\nCode:\n", code, "\n"); }
-        return result;
     }
 
     domSelect(query, fn) {
