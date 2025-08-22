@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 55
+ * version: 56
  * Github : https://github.com/tmplink/tmpUI
- * Date :2025-01-19
+ * Date :2025-08-22
  */
 
 class tmpUI {
@@ -847,6 +847,52 @@ class tmpUI {
         });
     }
 
+    /**
+     * 在返回模板内容前进行即时语言替换，避免先出现原始中文再闪烁为目标语言。
+     * 仅对带有 i18n 属性的元素按与 languageBuild 相同规则替换，不修改缓存原文。
+     * @param {string} html 原始模板 HTML
+     * @returns {string} 翻译后的 HTML
+     */
+    languageTranslateHtml(html) {
+        if (!html || !this.languageData) return html;
+        try {
+            // 使用 DOMParser 包装一层，避免影响顶级多个节点结构
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(`<div id="__tmp_lang_wrap">${html}</div>`, 'text/html');
+            const wrap = doc.getElementById('__tmp_lang_wrap');
+            const i18nLang = this.languageData;
+            wrap.querySelectorAll('[i18n]').forEach(dom => {
+                const key = dom.getAttribute('i18n');
+                if (!key || i18nLang[key] === undefined) return; // 未找到键保持原样
+                const i18nOnly = dom.getAttribute('i18n-only');
+                // value
+                if (dom.value != null && dom.value !== '' && (!i18nOnly || i18nOnly === 'value')) {
+                    dom.value = i18nLang[key];
+                }
+                // innerHTML
+                if (dom.innerHTML != null && dom.innerHTML !== '' && (!i18nOnly || i18nOnly === 'html')) {
+                    dom.innerHTML = i18nLang[key];
+                }
+                // placeholder
+                if (dom.getAttribute('placeholder') && (!i18nOnly || i18nOnly === 'placeholder')) {
+                    dom.setAttribute('placeholder', i18nLang[key]);
+                }
+                // content
+                if (dom.getAttribute('content') && (!i18nOnly || i18nOnly === 'content')) {
+                    dom.setAttribute('content', i18nLang[key]);
+                }
+                // title
+                if (dom.getAttribute('title') && (!i18nOnly || i18nOnly === 'title')) {
+                    dom.setAttribute('title', i18nLang[key]);
+                }
+            });
+            return wrap.innerHTML;
+        } catch (e) {
+            console.warn('languageTranslateHtml error', e);
+            return html; // 失败则返回原始内容
+        }
+    }
+
     languageSetHead(langs) {
         const langMap = {
             'zh-cn': 'zh-cn',
@@ -953,7 +999,8 @@ class tmpUI {
     }
 
     getFile(url) {
-        return this.filesCache[url];
+        const raw = this.filesCache[url];
+        return this.languageTranslateHtml(raw);
     }
 
     tpl(id, data) {
@@ -962,37 +1009,37 @@ class tmpUI {
             console.error('templateEngine::Element not found with id: ' + id);
             return '';
         }
-        
+
         const html = element.innerHTML;
         if (!html) {
             console.error('templateEngine::Template content is empty');
             return '';
         }
-    
+
         try {
             var re = /<%(.+?)%>/g,
                 reExp = /(^( )?(var|if|for|else|switch|case|break|{|}|;))(.*)?/g,
                 code = 'try { with(obj) { var r=[];\n',
                 cursor = 0,
                 match;
-    
-            var add = function(line, js) {
+
+            var add = function (line, js) {
                 js ? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
                     (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
                 return add;
             }
-    
+
             while (match = re.exec(html)) {
                 add(html.slice(cursor, match.index))(match[1], true);
                 cursor = match.index + match[0].length;
             }
             add(html.substr(cursor, html.length - cursor));
-    
+
             code = (code + 'return r.join(""); }} catch(e) { throw e; }').replace(/[\r\t\n]/g, '');
-            
+
             let result = new Function('obj', code).apply(data, [data]);
             return result;
-            
+
         } catch (e) {
             let errorMessage = `
                 <div class="template-error" style="
@@ -1010,7 +1057,7 @@ class tmpUI {
                         <strong>Message:</strong> ${e.message}<br>
                     </div>
                 </div>`;
-    
+
             console.error('Template Error in element #' + id + ':\n', e);
             return errorMessage;
         }
