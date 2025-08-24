@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 56
+ * version: 55
  * Github : https://github.com/tmplink/tmpUI
- * Date :2025-08-22
+ * Date :2025-01-19
  */
 
 class tmpUI {
@@ -819,11 +819,6 @@ class tmpUI {
 
         this.domSelect('[i18n]', (dom) => {
             let i18nOnly = dom.getAttribute("i18n-only");
-            if (dom.value != null && dom.value != "") {
-                if (i18nOnly == null || i18nOnly == undefined || i18nOnly == "" || i18nOnly == "value") {
-                    dom.value = i18nLang[dom.getAttribute("i18n")];
-                }
-            }
             if (dom.innerHTML != null && dom.innerHTML != "") {
                 if (i18nOnly == null || i18nOnly == undefined || i18nOnly == "" || i18nOnly == "html") {
                     dom.innerHTML = i18nLang[dom.getAttribute("i18n")];
@@ -842,6 +837,11 @@ class tmpUI {
             if (dom.getAttribute('title') != null && dom.getAttribute('title') != "") {
                 if (i18nOnly == null || i18nOnly == undefined || i18nOnly == "" || i18nOnly == "title") {
                     dom.setAttribute('title', i18nLang[dom.getAttribute("i18n")]);
+                }
+            }
+            if (dom.value != null && dom.value != "") {
+                if (i18nOnly == "value") {
+                    dom.value = i18nLang[dom.getAttribute("i18n")];
                 }
             }
         });
@@ -865,10 +865,6 @@ class tmpUI {
                 const key = dom.getAttribute('i18n');
                 if (!key || i18nLang[key] === undefined) return; // 未找到键保持原样
                 const i18nOnly = dom.getAttribute('i18n-only');
-                // value
-                if (dom.value != null && dom.value !== '' && (!i18nOnly || i18nOnly === 'value')) {
-                    dom.value = i18nLang[key];
-                }
                 // innerHTML
                 if (dom.innerHTML != null && dom.innerHTML !== '' && (!i18nOnly || i18nOnly === 'html')) {
                     dom.innerHTML = i18nLang[key];
@@ -884,6 +880,10 @@ class tmpUI {
                 // title
                 if (dom.getAttribute('title') && (!i18nOnly || i18nOnly === 'title')) {
                     dom.setAttribute('title', i18nLang[key]);
+                }
+                // value (仅在明确指定 i18n-only="value" 时才翻译)
+                if (dom.value != null && dom.value !== '' && i18nOnly === 'value') {
+                    dom.value = i18nLang[key];
                 }
             });
             return wrap.innerHTML;
@@ -1000,6 +1000,7 @@ class tmpUI {
 
     getFile(url) {
         const raw = this.filesCache[url];
+        // 如果已有语言数据，实时翻译（不修改缓存原文，便于语言切换后重新翻译）
         return this.languageTranslateHtml(raw);
     }
 
