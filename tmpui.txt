@@ -1,0 +1,565 @@
+# tmpUI Framework - AI Documentation
+
+## Overview
+
+tmpUI is a lightweight JavaScript framework for building single-page applications (SPAs) with a modular, template-based architecture. It provides functionality similar to PHP's include/require system but runs entirely in the browser, enabling front-end modularity without build tools, transpilation, or dependency management.
+
+**Repository**: https://github.com/tmplink/tmpUI  
+**Current Version**: 55  
+**License**: MIT
+
+## Core Concepts
+
+### 1. Framework Philosophy
+- No build tools required - runs directly in browser
+- No transpilation or packaging needed
+- Similar to MVC template patterns from PHP/ASP.net
+- Low coupling design - works with existing JavaScript plugins
+- Progressive learning through basic features
+
+### 2. Key Features
+- Static and dynamic routing
+- Resource group management (preload/append)
+- Built-in template engine with `<% %>` syntax
+- Internationalization (i18n) support
+- Loading page with progress bar
+- Google Analytics integration
+- Dark/light mode support
+
+## Project Structure
+
+```
+project/
+├── index.html          # Application entry point
+├── tmpui.js           # Framework core
+├── tmpui.checker.js   # ES6 compatibility checker (optional)
+├── tpl/               # Templates directory
+│   ├── index.html     # Main template
+│   ├── header.html    # Header component
+│   └── footer.html    # Footer component
+├── lang/              # Language files
+│   ├── en.json
+│   └── cn.json
+├── route/             # Dynamic route configurations (JSON)
+└── assets/            # CSS, JS, images
+```
+
+## Application Entry (index.html)
+
+```html
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>tmpUI App</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script type="text/javascript" src="./tmpui.js"></script>
+    <script type="text/javascript">
+        var app = new tmpUI({
+            // Configuration object
+        });
+    </script>
+</head>
+<body>
+    <div id="tmpui"></div>           <!-- Loading overlay container -->
+    <div id="tmpui_body"></div>      <!-- Main content container -->
+</body>
+</html>
+```
+
+## Configuration Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `version` | 0 | Version number appended to resource URLs for cache busting |
+| `siteRoot` | "/" | Application root directory path |
+| `index` | "/" | Application entry route |
+| `loadingPage` | false | Enable loading overlay |
+| `loadingIcon` | null | Path to loading icon image |
+| `loadingText` | null | Loading text message |
+| `loadingProgress` | true | Show loading progress bar |
+| `pageNotFound` | null | Custom 404 route |
+| `dynamicRouter` | false | Path to dynamic route directory (e.g., "route") |
+| `language` | null | Language file configuration object |
+| `languageDefault` | "en" | Default language code |
+| `googleAnalytics` | null | Google Analytics ID |
+| `bg_color_light` | "#fff" | Light mode background color |
+| `bg_color_dark` | "#000" | Dark mode background color |
+| `extendStaticHost` | "" | CDN or static host prefix |
+| `path` | {} | Static route configurations |
+| `preload` | {} | Preload resource groups |
+| `append` | {} | Append resource groups |
+| `errorOnloading` | true | Show errors on loading page |
+
+## Routing System
+
+### Static Routes
+
+Define routes in the `path` configuration:
+
+```javascript
+var app = new tmpUI({
+    "path": {
+        "/": {
+            "title": "Home Page",
+            "preload": ["bootstrap"],      // Resource groups to load first
+            "append": ["framework"],       // Resource groups to load last
+            "body": {
+                "./tpl/index.html": { 
+                    "type": "html", 
+                    "target": { "type": "body" } 
+                },
+                "./tpl/header.html": { 
+                    "type": "html", 
+                    "target": { "type": "id", "val": "tpl_header" } 
+                }
+            }
+        },
+        "/about.html": {
+            "title": "About",
+            "body": { ... }
+        }
+    }
+});
+```
+
+### Dynamic Routes
+
+Enable with `dynamicRouter` parameter:
+
+```javascript
+var app = new tmpUI({
+    "dynamicRouter": "route"  // Looks for route config files in /route/
+});
+```
+
+For route `/page1.html`, tmpUI loads `/route/page1.html.json`:
+
+```json
+{
+    "title": "Page 1",
+    "preload": ["bootstrap"],
+    "body": {
+        "./tpl/page/page1.html": { "type": "html", "target": { "type": "body" } }
+    }
+}
+```
+
+### URL Format
+
+tmpUI uses query string format: `index.html?tmpui_page=/about.html`
+
+## Resource Groups
+
+### Resource Types
+
+| Type | Description | Options |
+|------|-------------|---------|
+| `html` | HTML template | `target`: where to insert |
+| `css` | Stylesheet | `reload`: whether to reload on navigation |
+| `js` | JavaScript | `reload`: whether to reload on navigation |
+| `tpl` | Hidden template | For template engine use |
+| `file` | Cached file | Accessible via `app.getFile()` |
+
+### Target Options for HTML
+
+```javascript
+// Replace #tmpui_body content
+"target": { "type": "body" }
+
+// Replace element with specific ID
+"target": { "type": "id", "val": "element_id" }
+
+// Append to #tmpui_body
+"target": { "type": "append" }
+```
+
+### Preload and Append Groups
+
+```javascript
+var app = new tmpUI({
+    "preload": {
+        "bootstrap": {
+            "/lib/jquery.min.js": { "type": "js", "reload": false },
+            "/lib/bootstrap.min.css": { "type": "css", "reload": false }
+        }
+    },
+    "append": {
+        "framework": {
+            "/tpl/header.html": { "type": "html", "target": { "type": "id", "val": "header" } },
+            "/tpl/init.js": { "type": "js" }
+        }
+    },
+    "path": {
+        "/": {
+            "title": "Home",
+            "preload": ["bootstrap"],
+            "append": ["framework"],
+            "body": { ... }
+        }
+    }
+});
+```
+
+**Loading Order**: preload → body → append
+
+## API Methods
+
+### Navigation
+
+```javascript
+// Navigate to route
+app.open("/page.html");
+
+// Navigate in new tab
+app.open("/page.html", true);
+
+// Update URL without reload (for dynamic events)
+app.dynOpen("/page.html");
+```
+
+### Ready Callback
+
+```javascript
+// Execute code when page is fully loaded
+app.ready(() => {
+    console.log("Page ready");
+});
+```
+
+### Exit Callback
+
+```javascript
+// Execute code before leaving current route
+app.onExit(() => {
+    console.log("Leaving page");
+});
+```
+
+### Template Engine
+
+```javascript
+// Parse template by element ID
+let html = app.tpl("template_id");
+
+// Parse template with data
+let html = app.tpl("template_id", { items: [1, 2, 3] });
+```
+
+Template syntax:
+
+```html
+<script type="text/template" id="my_template">
+    <ul>
+        <% for(let i in obj.items){ %>
+            <li><% obj.items[i] %></li>
+        <% } %>
+    </ul>
+</script>
+```
+
+### File Cache
+
+```javascript
+// Get cached file content (with i18n applied)
+let content = app.getFile("/path/to/file.html");
+```
+
+### Language Functions
+
+```javascript
+// Set language
+app.languageSet("cn");
+
+// Get current language
+let lang = app.languageGet();
+
+// Rebuild language (re-render i18n elements)
+app.languageBuild();
+
+// Get language data object
+let data = app.languageData;
+```
+
+### DOM Utilities
+
+```javascript
+// Select and iterate elements
+app.domSelect(".class", (el) => { ... });
+
+// Append HTML
+app.htmlAppend("#container", "<div>content</div>");
+
+// Replace HTML content
+app.htmlRewrite("#container", "<div>new content</div>");
+
+// Show/hide elements
+app.domShow("#element");
+app.domHide("#element");
+```
+
+### Custom Router
+
+```javascript
+// Set custom handler for specific route
+app.setCoustomRouter("/custom", () => {
+    // Custom handling logic
+});
+```
+
+## Internationalization (i18n)
+
+### Language Configuration
+
+```javascript
+var app = new tmpUI({
+    "language": {
+        "en": "/lang/en.json",
+        "cn": "/lang/cn.json"
+    },
+    "languageDefault": "en"
+});
+```
+
+### Language File Format (JSON)
+
+```json
+{
+    "welcome_title": "Welcome",
+    "welcome_message": "Hello, World!",
+    "button_submit": "Submit"
+}
+```
+
+### HTML Usage
+
+```html
+<!-- Basic text replacement -->
+<div i18n="welcome_title">.</div>
+
+<!-- Placeholder replacement -->
+<input i18n="button_submit" i18n-only="placeholder" placeholder=".">
+
+<!-- Title attribute replacement -->
+<div i18n="welcome_message" i18n-only="title" title=".">Content</div>
+
+<!-- Value replacement (inputs) -->
+<input i18n="button_submit" i18n-only="value" value=".">
+```
+
+**Note**: The `.` character is required as placeholder content.
+
+### Supported Languages (Auto-detect)
+
+| Code | Language |
+|------|----------|
+| en | English |
+| cn | Chinese (Simplified) |
+| hk | Chinese (Traditional) |
+| jp | Japanese |
+| kr | Korean |
+| fr | French |
+| de | German |
+| ms | Malay |
+| ru | Russian |
+
+## Link Handling
+
+### App Internal Links
+
+```html
+<!-- Auto-converted to tmpUI route -->
+<a tmpui-app="true" href="/about.html">About</a>
+<!-- Becomes: <a href="?tmpui_page=/about.html">About</a> -->
+```
+
+### Dynamic Action Links
+
+```html
+<!-- Execute JS function while updating URL -->
+<a tmpui-action="loadPage1()" href="/page1.html">Page 1</a>
+```
+
+```javascript
+function loadPage1() {
+    // Custom logic - URL updates without full page reload
+    document.getElementById('content').innerHTML = '...';
+}
+```
+
+### Static Resource Path Fix
+
+```html
+<!-- When siteRoot="/subdir/" -->
+<img tmpui-root="true" src="logo.png">
+<!-- Becomes: <img src="/subdir/logo.png"> -->
+```
+
+## Complete Example
+
+```javascript
+var app = new tmpUI({
+    "version": 1,
+    "siteRoot": "/",
+    "loadingPage": true,
+    "loadingIcon": "/assets/logo.png",
+    "loadingProgress": true,
+    "pageNotFound": "/404.html",
+    "dynamicRouter": "route",
+    "googleAnalytics": "G-XXXXXXXX",
+    "language": {
+        "en": "/lang/en.json",
+        "cn": "/lang/cn.json"
+    },
+    "languageDefault": "en",
+    "preload": {
+        "core": {
+            "/lib/jquery.min.js": { "type": "js", "reload": false },
+            "/lib/bootstrap.min.css": { "type": "css", "reload": false }
+        }
+    },
+    "append": {
+        "layout": {
+            "/tpl/header.html": { "type": "html", "target": { "type": "id", "val": "header" } },
+            "/tpl/footer.html": { "type": "html", "target": { "type": "id", "val": "footer" } }
+        }
+    },
+    "path": {
+        "/": {
+            "title": "Home",
+            "preload": ["core"],
+            "append": ["layout"],
+            "body": {
+                "/tpl/index.html": { "type": "html", "target": { "type": "body" } }
+            }
+        },
+        "/404.html": {
+            "title": "Not Found",
+            "preload": ["core"],
+            "body": {
+                "/tpl/404.html": { "type": "html", "target": { "type": "body" } }
+            }
+        }
+    }
+});
+
+// Ready callback
+app.ready(() => {
+    console.log("Application ready");
+    hljs.highlightAll();  // Example: initialize syntax highlighting
+});
+
+// Exit callback
+app.onExit(() => {
+    // Cleanup before route change
+});
+```
+
+## Common Patterns
+
+### 1. Page with Template
+
+```html
+<!-- tpl/page.html -->
+<div id="header"></div>
+<main>
+    <h1 i18n="page_title">.</h1>
+    <div id="content"></div>
+</main>
+<div id="footer"></div>
+```
+
+### 2. List Generation with Template Engine
+
+```html
+<script type="text/template" id="item_list">
+    <% for(let item of obj.items){ %>
+        <div class="item">
+            <h3><% item.title %></h3>
+            <p><% item.description %></p>
+        </div>
+    <% } %>
+</script>
+```
+
+```javascript
+app.ready(() => {
+    let data = { items: [...] };
+    document.getElementById('content').innerHTML = app.tpl('item_list', data);
+});
+```
+
+### 3. Language Switching
+
+```javascript
+function switchLanguage(lang) {
+    app.languageSet(lang);
+    // Page re-renders automatically
+}
+```
+
+### 4. SPA Navigation
+
+```javascript
+// Programmatic navigation
+function goToPage(page) {
+    app.open(page);
+}
+
+// With action (partial update)
+function updateContent() {
+    app.dynOpen("/newpage.html");
+    // Update only specific content without full reload
+    loadPartialContent();
+}
+```
+
+## Debugging
+
+Enable debug mode (enabled by default):
+```javascript
+// Debug messages appear in console as "tmpUI::Log -> ..."
+app.debug = true;
+```
+
+## Browser Compatibility
+
+tmpUI requires ES6 support. Use `tmpui.checker.js` to redirect unsupported browsers:
+
+```html
+<script type="text/javascript">
+try {
+    var f = new Function("class tmpUITest{a=0}");
+} catch (e) {
+    window.location.href = '/version.html';
+}
+</script>
+```
+
+## Key HTML Structure
+
+Required elements in body:
+```html
+<div id="tmpui"></div>        <!-- Loading overlay (managed by tmpUI) -->
+<div id="tmpui_body"></div>   <!-- Main content area -->
+```
+
+## File Types Summary
+
+| Extension | Purpose |
+|-----------|---------|
+| `.html` | Templates and page content |
+| `.js` | JavaScript files |
+| `.css` | Stylesheets |
+| `.json` | Language files and dynamic route configs |
+
+## Best Practices
+
+1. Use `reload: false` for shared resources (jQuery, Bootstrap) to avoid reloading
+2. Organize templates in `/tpl/` directory
+3. Use preload groups for dependencies, append groups for layout
+4. Keep route-specific JS in append groups
+5. Use i18n attributes for all user-facing text
+6. Set meaningful `version` value for cache control
+7. Use `app.ready()` for initialization code that depends on DOM
+8. Use `app.onExit()` for cleanup before navigation

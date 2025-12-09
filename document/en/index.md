@@ -81,6 +81,10 @@ The essence of `tmpUI` is actually similar to the relationship between `C++` and
 
 At this stage, `tmpUI` implements the basic modularity and routing, but also adds additional advanced features: embedded templates, multi-language support, dynamic routing, and other three more useful features.
 
+# AI Documentation
+
+We have prepared a dedicated documentation file [tmpui.txt](/tmpui.txt) for AI assistants. This document organizes all tmpUI features and APIs in a structured format, making it easy for AI assistants to quickly understand and work with the tmpUI framework.
+
 # Copyright
 
 `tmpUI` is released under the `MIT License`.
