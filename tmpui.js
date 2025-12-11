@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 55
+ * version: 56
  * Github : https://github.com/tmplink/tmpUI
- * Date :2025-01-19
+ * Date :2025-12-11
  */
 
 class tmpUI {
@@ -111,6 +111,49 @@ class tmpUI {
      */
     setCoustomRouter(page, router) {
         this.customRouter[page] = router;
+    }
+
+    /**
+     * 清理外部元素
+     * 在页面跳转时，移除 body 下所有非 tmpUI 框架管理的元素
+     * 这包括第三方库动态添加的遮罩层、弹窗容器等
+     */
+    cleanupExternalElements() {
+        // tmpUI 框架保留的元素 ID 列表
+        const preserveIds = ['tmpui', 'tmpui_body', 'tmpui_loading_bg', 'tmpui_loading_show'];
+        
+        // 遍历 body 的直接子元素
+        const bodyChildren = Array.from(document.body.children);
+        bodyChildren.forEach(el => {
+            // 保留 script 和 style 标签
+            if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'NOSCRIPT') {
+                return;
+            }
+            // 保留带有 tmpui 相关 ID 的元素
+            if (el.id && preserveIds.includes(el.id)) {
+                return;
+            }
+            // 保留带有 tmpUIRes 或 tmpUIRes_once class 的元素（tmpUI 资源）
+            if (el.classList.contains('tmpUIRes') || el.classList.contains('tmpUIRes_once')) {
+                return;
+            }
+            // 移除其他非框架元素
+            el.remove();
+        });
+        
+        // 清理 body 上可能被第三方库添加的 class 和内联样式
+        // 保留 tmpUI 可能使用的 class
+        const bodyClasses = Array.from(document.body.classList);
+        bodyClasses.forEach(cls => {
+            // 移除非 tmpui 相关的 class
+            if (!cls.startsWith('tmpui')) {
+                document.body.classList.remove(cls);
+            }
+        });
+        
+        // 清理 body 的内联样式
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
     }
 
     cssInit() {
@@ -451,6 +494,9 @@ class tmpUI {
 
         //
         this.pageReady = false;
+
+        // 清理外部元素：移除非框架添加的 DOM 结构
+        this.cleanupExternalElements();
 
         //获取参数
         let href = window.location.href;
