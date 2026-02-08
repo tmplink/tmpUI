@@ -18,6 +18,36 @@
             window.location.href = '/version.html';
         }
 
+        // 注册 Service Worker (支持 PWA)
+        if ('serviceWorker' in navigator) {
+            // 尽早监听消息，防止漏掉 SW 的更新通知
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data?.type === 'UPDATE_AVAILABLE') {
+                    console.log('New version detected, reloading...');
+                    window.location.reload();
+                }
+            });
+
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/pwa_sw.js')
+                    .then(registration => {
+                        console.log('SW registered:', registration);
+                        
+                        // 定时检查更新 (每 60 秒)
+                        setInterval(() => {
+                            if (registration.active) {
+                                // console.log('Checking for updates...');
+                                registration.active.postMessage({ 
+                                    type: 'CHECK_UPDATE',
+                                    url: window.location.href 
+                                });
+                            }
+                        }, 60 * 1000);
+                    })
+                    .catch(error => console.log('SW registration failed:', error));
+            });
+        }
+
     </script>
 
     <script type="text/javascript" src="./tmpui.js"></script>
