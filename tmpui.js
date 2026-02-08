@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 56
+ * version: 58
  * Github : https://github.com/tmplink/tmpUI
- * Date :2025-12-11
+ * Date :2026-01-31
  */
 
 class tmpUI {
@@ -157,7 +157,7 @@ class tmpUI {
     }
 
     cssInit() {
-        this.htmlAppend('head', `<style>body::-webkit-scrollbar{width:0!important}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:${this.bg_color};z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</div>`);
+        this.htmlAppend('head', `<style>body::-webkit-scrollbar{width:0!important}#tmpui{display:none}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:${this.bg_color};z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</style>`);
     }
 
     onExit(cb) {
@@ -209,7 +209,7 @@ class tmpUI {
         } else {
             setTimeout(() => {
                 this.readyEvent();
-            }, 500);
+            }, 50);
         }
     }
 
@@ -520,8 +520,20 @@ class tmpUI {
         //移除一次性资源
         document.querySelectorAll(".tmpUIRes").forEach(e => e.parentNode.removeChild(e));
 
+        // 检查资源缓存状态 - 针对静态配置的路由，如果资源已加载，则延迟显示 Loading
+        let isCached = false;
+        if (this.config.path[url] && this.config.path[url].res) {
+            isCached = true;
+            for (let i in this.config.path[url].res) {
+                if (this.config.path[url].res[i].state !== 1) {
+                    isCached = false;
+                    break;
+                }
+            }
+        }
+
         //查找路由
-        this.loadpage(true);
+        this.loadpage(true, isCached);
 
         //在设定了 Hash 的情况下，不进行路由
         if (hash !== false && !this.loadingPage) {
@@ -557,8 +569,30 @@ class tmpUI {
     }
 
     route200(url) {
+        // 判断是否所有资源都已加载
+        this.currentLoadIsCached = true;
+        if (this.config.path[url] && this.config.path[url].res) {
+            for (let i in this.config.path[url].res) {
+                if (this.config.path[url].res[i].state !== 1) {
+                    this.currentLoadIsCached = false;
+                    break;
+                }
+            }
+        } else {
+            this.currentLoadIsCached = false;
+        }
+
         //下载所需组件
         this.loaderStart(url, () => {
+            
+            // 为了防止 FOUC (无样式内容闪烁)，在内容更新前将主体隐藏
+            // 等到所有资源(包括CSS)加载完毕(readyEvent触发loadpage(false))后再显示
+            let tb = document.getElementById('tmpui_body');
+            if (tb) {
+                tb.style.transition = ''; // 移除过渡，立即隐藏
+                tb.style.opacity = '0';
+            }
+
             //调整网页标题
             document.title = this.config.path[url].title;
             //写入到页面,处理资源时需要根据对应的资源类型进行处理
@@ -621,8 +655,24 @@ class tmpUI {
                         continue;
                     }
                 }
+                
                 this.htmlAppend('head', `<!--[${i}]-->`);
-                this.htmlAppend('head', `<link class="${contentReloadTarget}" rel="stylesheet" href="${contentURL}">`);
+
+                // 使用 createElement 创建 link 标签，并监听 onload 事件
+                // 这样可以将 CSS 加载纳入 readyQueue 队列，确保样式加载完成后再显示页面
+                window.tmpuiHelper.readyTotal++;
+                let link = document.createElement('link');
+                link.className = contentReloadTarget;
+                link.rel = 'stylesheet';
+                link.href = contentURL;
+                link.onload = () => {
+                    window.tmpuiHelper.readyQueue++;
+                };
+                link.onerror = () => {
+                    window.tmpuiHelper.readyQueue++;
+                    this.logError('Failed to load CSS: ' + contentURL);
+                }
+                document.head.appendChild(link);
             }
 
             if (contentType === 'js' && contentType === type) {
@@ -663,18 +713,24 @@ class tmpUI {
             }
 
             if (contentType === 'html' && contentType === type) {
+                // 在注入 HTML 之前先进行语言翻译
+                let translatedContent = content;
+                if (this.languageData) {
+                    translatedContent = this.languageTranslateHtml(content);
+                }
+                
                 if (this.config.path[url].res[i].target.type === "append") {
                     this.htmlAppend('#tmpui_body', `<!--[${i}]-->`);
-                    this.htmlAppend('#tmpui_body', content);
+                    this.htmlAppend('#tmpui_body', translatedContent);
                 }
                 if (this.config.path[url].res[i].target.type === "body") {
                     this.htmlAppend('#tmpui_body', `<!--[${i}]-->`);
-                    this.htmlRewrite('#tmpui_body', content);
+                    this.htmlRewrite('#tmpui_body', translatedContent);
                 }
                 if (this.config.path[url].res[i].target.type === "id") {
                     let id = this.config.path[url].res[i].target.val;
                     this.htmlAppend('#' + id, `<!--[${i}]-->`);
-                    this.htmlReplaceWith('#' + id, content);
+                    this.htmlReplaceWith('#' + id, translatedContent);
                 }
             }
         }
@@ -750,8 +806,37 @@ class tmpUI {
     }
 
     loaderFinish() {
+        if (this.currentLoadIsCached) {
+            if (window.tmpuiHelper.loadQueue == window.tmpuiHelper.loadTotal) {
+                this.log("Loading is complete (cached).");
+                document.body.style.overflow = "";
+
+                if (typeof this.loadCallback === 'function') {
+                    this.log("Callback is running.");
+                    this.loadCallback();
+                }
+                this.loadCallback = null;
+            }
+            return;
+        }
+
         // 检查是否启用进度条
         if (this.progressEnable && this.progressStatus === false) {
+            // 如果加载时间小于设定的延迟显示时间，则不需要显示进度条，直接结束
+            if (this._loadingStartTime && (Date.now() - this._loadingStartTime < this._loadingDelay)) {
+                if (window.tmpuiHelper.loadQueue == window.tmpuiHelper.loadTotal) {
+                    this.log("Loading is complete (fast load).");
+                    document.body.style.overflow = "";
+
+                    if (typeof this.loadCallback === 'function') {
+                        this.log("Callback is running.");
+                        this.loadCallback();
+                    }
+                    this.loadCallback = null;
+                }
+                return;
+            }
+
             // 显示进度条
             this.progressStatus = true;
             this.htmlAppend('#tmpui_loading_show', '<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
@@ -804,10 +889,10 @@ class tmpUI {
         this.log("languageSet : " + lang);
         var old = localStorage.getItem('tmpUI_language');
         if (old === lang) {
-            return false;
+            return Promise.resolve(false);
         } else {
             localStorage.setItem('tmpUI_language', lang);
-            this.languageBuild();
+            return this.languageBuild();
         }
     }
 
@@ -891,11 +976,52 @@ class tmpUI {
                 }
             }
         });
+
+        // 处理 [data-tpl] 属性 (VXUI 使用的翻译属性)
+        this.domSelect('[data-tpl]', (dom) => {
+            const key = dom.getAttribute('data-tpl');
+            if (!key || i18nLang[key] === undefined) return;
+            const val = i18nLang[key];
+            const tag = (dom.tagName || '').toUpperCase();
+
+            // title 属性
+            if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                dom.setAttribute('title', val);
+            }
+
+            // inputs: prefer placeholder
+            if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                if (dom.getAttribute('placeholder') != null) {
+                    dom.setAttribute('placeholder', val);
+                } else if (dom.value != null) {
+                    dom.value = val;
+                }
+                return;
+            }
+
+            // 只翻译叶子节点，避免破坏 icon+text 布局
+            if (dom.children && dom.children.length > 0) return;
+            dom.textContent = val;
+        });
+
+        // 处理 [data-tpl-placeholder] 属性 - 仅翻译 placeholder
+        this.domSelect('[data-tpl-placeholder]', (dom) => {
+            const key = dom.getAttribute('data-tpl-placeholder');
+            if (!key || i18nLang[key] === undefined) return;
+            dom.setAttribute('placeholder', i18nLang[key]);
+        });
+
+        // 处理 [data-tpl-title] 属性 - 仅翻译 title
+        this.domSelect('[data-tpl-title]', (dom) => {
+            const key = dom.getAttribute('data-tpl-title');
+            if (!key || i18nLang[key] === undefined) return;
+            dom.setAttribute('title', i18nLang[key]);
+        });
     }
 
     /**
      * 在返回模板内容前进行即时语言替换，避免先出现原始中文再闪烁为目标语言。
-     * 仅对带有 i18n 属性的元素按与 languageBuild 相同规则替换，不修改缓存原文。
+     * 对带有 i18n 或 data-tpl 属性的元素按与 languageBuild / TL.tpl_lang 相同规则替换，不修改缓存原文。
      * @param {string} html 原始模板 HTML
      * @returns {string} 翻译后的 HTML
      */
@@ -907,6 +1033,8 @@ class tmpUI {
             const doc = parser.parseFromString(`<div id="__tmp_lang_wrap">${html}</div>`, 'text/html');
             const wrap = doc.getElementById('__tmp_lang_wrap');
             const i18nLang = this.languageData;
+
+            // 处理 [i18n] 属性
             wrap.querySelectorAll('[i18n]').forEach(dom => {
                 const key = dom.getAttribute('i18n');
                 if (!key || i18nLang[key] === undefined) return; // 未找到键保持原样
@@ -932,6 +1060,48 @@ class tmpUI {
                     dom.value = i18nLang[key];
                 }
             });
+
+            // 处理 [data-tpl] 属性 (VXUI 使用的翻译属性)
+            wrap.querySelectorAll('[data-tpl]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl');
+                if (!key || i18nLang[key] === undefined) return;
+                const val = i18nLang[key];
+                const tag = (dom.tagName || '').toUpperCase();
+
+                // title 属性
+                if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                    dom.setAttribute('title', val);
+                }
+
+                // inputs: prefer placeholder
+                if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                    if (dom.getAttribute('placeholder') != null) {
+                        dom.setAttribute('placeholder', val);
+                    } else if (dom.value != null) {
+                        dom.value = val;
+                    }
+                    return;
+                }
+
+                // 只翻译叶子节点，避免破坏 icon+text 布局
+                if (dom.children && dom.children.length > 0) return;
+                dom.textContent = val;
+            });
+
+            // 处理 [data-tpl-placeholder] 属性 - 仅翻译 placeholder
+            wrap.querySelectorAll('[data-tpl-placeholder]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl-placeholder');
+                if (!key || i18nLang[key] === undefined) return;
+                dom.setAttribute('placeholder', i18nLang[key]);
+            });
+
+            // 处理 [data-tpl-title] 属性 - 仅翻译 title
+            wrap.querySelectorAll('[data-tpl-title]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl-title');
+                if (!key || i18nLang[key] === undefined) return;
+                dom.setAttribute('title', i18nLang[key]);
+            });
+
             return wrap.innerHTML;
         } catch (e) {
             console.warn('languageTranslateHtml error', e);
@@ -1022,7 +1192,21 @@ class tmpUI {
         }
     }
 
-    loadpage(status) {
+    loadpage(status, isCached = false) {
+
+        // 无论是否启用 loadingPage，都需要处理 FOUC 问题
+        // 如果 status 为 false (加载完成)，强制显示内容区域
+        if (status === false) {
+             // 页面加载完成（CSS已就绪），显示主体内容
+             let tb = document.getElementById('tmpui_body');
+             if (tb) {
+                 // 强制重绘以确保 transition 生效
+                 // requestAnimationFrame(() => {
+                     tb.style.transition = 'opacity 0.3s ease';
+                     tb.style.opacity = '1';
+                 // });
+             }
+        }
 
         if (!this.loadingPage) {
             this.log('Loading page exit.');
@@ -1030,11 +1214,26 @@ class tmpUI {
         }
 
         if (status == true) {
-            document.body.style.overflow = 'hidden';
-            this.domShow('#tmpui');
+            // 延迟 500ms (缓存时 2000ms) 显示加载动画，实现无闪烁加载
+            if (this._loadingTimer) clearTimeout(this._loadingTimer);
+            this._loadingActive = true;
             this.doExit();
-            this.log('Loading page on');
+
+            let delay = isCached ? 2000 : 500;
+            this._loadingDelay = delay;
+            this._loadingStartTime = Date.now();
+
+            this._loadingTimer = setTimeout(() => {
+                if (this._loadingActive) {
+                    document.body.style.overflow = 'hidden';
+                    this.domShow('#tmpui');
+                    this.log('Loading page on');
+                }
+            }, delay);
         } else {
+            this._loadingActive = false;
+            if (this._loadingTimer) clearTimeout(this._loadingTimer);
+
             document.body.style.overflow = '';
             this.domHide('#tmpui');
             this.log('Loading page off');
