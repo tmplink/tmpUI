@@ -47,13 +47,25 @@ self.addEventListener('message', (event) => {
         const url = event.data.url;
         if (!url) return;
         
-        // 尝试匹配当前 URL 的缓存
         const request = new Request(url);
-        const cachedResponse = await caches.match(request);
+        
+        // 针对 index.html (根路径) 去除 query 参数，与导航请求的缓存 key 保持一致
+        const requestUrl = new URL(url);
+        const path = requestUrl.pathname;
+        const isIndex = path === '/' || path.toLowerCase().endsWith('/index.html');
+        let cacheKeyRequest = request;
+
+        if (isIndex) {
+            requestUrl.search = '';
+            cacheKeyRequest = new Request(requestUrl.toString());
+        }
+
+        // 尝试匹配当前 URL 的缓存
+        const cachedResponse = await caches.match(cacheKeyRequest);
         
         // 复用 fetchAndCache 逻辑，强制标记为 isNavigation=true 以启用内容比对和通知
         // 这样如果 index.html 变了，就会更新缓存并通知页面刷新
-        await fetchAndCache(request, cachedResponse, true)
+        await fetchAndCache(request, cachedResponse, true, cacheKeyRequest)
             .catch(err => console.log('[SW] 定时检查更新失败 (网络或其它原因)', err));
       })()
     );
@@ -74,7 +86,17 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         try {
-          const cachedResponse = await caches.match(event.request);
+          // 针对 index.html (根路径) 去除 query 参数，确保共用同一个缓存 key
+          const isIndex = path === '/' || path.toLowerCase().endsWith('/index.html');
+          let cacheKeyRequest = event.request;
+          
+          if (isIndex) {
+            const cleanUrl = new URL(event.request.url);
+            cleanUrl.search = '';
+            cacheKeyRequest = new Request(cleanUrl.toString());
+          }
+
+          const cachedResponse = await caches.match(cacheKeyRequest);
           
           // 后台网络请求：检查 ETag，有更新则下载并写入缓存
           // SWR 策略：如果有缓存，直接返回缓存，并在后台发起更新请求
@@ -84,7 +106,7 @@ self.addEventListener('fetch', (event) => {
           // 如果 fetchAndCache 内部试图 clone 一个已经被消耗的 response，就会报错。
           const cachedResponseForUpdate = cachedResponse ? cachedResponse.clone() : null;
 
-          const networkFetchPromise = fetchAndCache(event.request, cachedResponseForUpdate, true);
+          const networkFetchPromise = fetchAndCache(event.request, cachedResponseForUpdate, true, cacheKeyRequest);
 
           if (cachedResponse) {
              // 有缓存，直接返回缓存，后台静默更新
@@ -160,7 +182,7 @@ const getVersionFromHtml = (html) => {
 };
 
 // 辅助函数：请求并缓存 (支持 ETag 和 Last-Modified 验证)
-const fetchAndCache = async (request, cachedResponse = null, isNavigation = false) => {
+const fetchAndCache = async (request, cachedResponse = null, isNavigation = false, cacheKeyRequest = null) => {
   let finalRequest = request;
 
   // 构造条件请求头
@@ -234,7 +256,7 @@ const fetchAndCache = async (request, cachedResponse = null, isNavigation = fals
     // 服务器返回了新数据 (200)，更新缓存
     const responseToCache = response.clone();
     const cache = await caches.open(CACHE_NAME);
-    await cache.put(request, responseToCache);
+    await cache.put(cacheKeyRequest || request, responseToCache);
 
     // 如果是导航请求且之前有缓存（说明是一次更新），通知页面
     if (isNavigation && cachedResponse) {
