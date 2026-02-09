@@ -78,6 +78,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(event.request.url);
+
+  // 忽略本地请求 (比如 127.0.0.1 或 localhost)，直接回退到网络，不缓存
+  if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') {
+    return;
+  }
+
   const path = url.pathname;
 
   // 1. 导航请求（Navigation）：如 index.html
