@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 58
+ * version: 59
  * Github : https://github.com/tmplink/tmpUI
- * Date :2026-01-31
+ * Date :2026-03-17
  */
 
 class tmpUI {
@@ -42,6 +42,7 @@ class tmpUI {
     currentPage = '/'
     onExitfunction = []
     filesCache = []
+    filesMeta = {}
     statusLastPage = ''
     extendStaticHost = ''
     bg_color = '#fff'
@@ -705,6 +706,7 @@ class tmpUI {
 
             if (contentType === 'file' && contentType === type) {
                 this.filesCache[i] = content;
+                this.filesMeta[i] = this.config.path[url].res[i] || {};
                 if (this.reloadTable[i] === false) {
                     this.reloadTable[i] = true;
                 } else {
@@ -1247,6 +1249,96 @@ class tmpUI {
         const raw = this.filesCache[url];
         // 如果已有语言数据，实时翻译（不修改缓存原文，便于语言切换后重新翻译）
         return this.languageTranslateHtml(raw);
+    }
+
+    async getFilePrepared(url) {
+        const raw = this.filesCache[url];
+        if (!raw) return '';
+
+        const metaStyles = this.getFileStyleDeps(url);
+        const prepared = metaStyles.length > 0
+            ? { html: raw, styles: metaStyles }
+            : this.extractTemplateStyles(raw);
+
+        if (prepared.styles.length > 0) {
+            await Promise.all(prepared.styles.map((href) => this.ensureStylesheetReady(href)));
+        }
+
+        return this.languageTranslateHtml(prepared.html);
+    }
+
+    getFileStyleDeps(url) {
+        const meta = this.filesMeta[url] || {};
+        return Array.isArray(meta.styles) ? meta.styles.slice() : [];
+    }
+
+    extractTemplateStyles(html) {
+        const template = document.createElement('template');
+        template.innerHTML = String(html || '');
+
+        const styles = [];
+        template.content.querySelectorAll('link[rel="stylesheet"][href]').forEach((link) => {
+            const href = link.getAttribute('href');
+            if (href) styles.push(href);
+            link.remove();
+        });
+
+        return {
+            html: template.innerHTML,
+            styles
+        };
+    }
+
+    ensureStylesheetReady(href) {
+        const targetHref = String(href || '').trim();
+        if (!targetHref) return Promise.resolve();
+
+        const normalizeHref = (value) => String(value || '').trim().split('#')[0].split('?')[0];
+        const normalizedTarget = normalizeHref(targetHref);
+
+        const existing = Array.from(document.head.querySelectorAll('link[rel="stylesheet"][href]')).find((link) => {
+            const currentHref = link.getAttribute('href') || '';
+            return normalizeHref(currentHref.replace(/^\.\//, '/')) === normalizedTarget;
+        });
+
+        if (existing) {
+            return new Promise((resolve) => {
+                let done = false;
+                const finish = () => {
+                    if (done) return;
+                    done = true;
+                    resolve();
+                };
+
+                if (existing.dataset.tmpuiReady === '1' || (existing.sheet && !existing.disabled)) {
+                    finish();
+                    return;
+                }
+
+                existing.addEventListener('load', finish, { once: true });
+                existing.addEventListener('error', finish, { once: true });
+                setTimeout(finish, 1500);
+            });
+        }
+
+        return new Promise((resolve) => {
+            const link = document.createElement('link');
+            let done = false;
+            const finish = () => {
+                if (done) return;
+                done = true;
+                link.dataset.tmpuiReady = '1';
+                resolve();
+            };
+
+            link.rel = 'stylesheet';
+            link.href = targetHref;
+            link.className = 'tmpUIRes_once';
+            link.addEventListener('load', finish, { once: true });
+            link.addEventListener('error', finish, { once: true });
+            document.head.appendChild(link);
+            setTimeout(finish, 1500);
+        });
     }
 
     tpl(id, data) {
